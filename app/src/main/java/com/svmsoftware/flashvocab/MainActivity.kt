@@ -10,10 +10,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.svmsoftware.flashvocab.ui.theme.FlashVocabTheme
+import androidx.navigation.compose.rememberNavController
+import com.svmsoftware.flashvocab.core.design_system.theme.FlashVocabTheme
+import com.svmsoftware.flashvocab.core.navigation.SetupNavGraph
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(
+) {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContent {
             FlashVocabTheme {
@@ -22,25 +26,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    SetupNavGraph()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlashVocabTheme {
-        Greeting("Android")
     }
 }
