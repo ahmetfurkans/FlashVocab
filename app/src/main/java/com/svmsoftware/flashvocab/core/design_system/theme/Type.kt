@@ -43,8 +43,6 @@ val Typography = Typography(
     labelMedium = TextStyle(
         fontFamily = Barlow,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = (20.4).sp
-    ),
-
+        fontSize = 12.sp
+    )
 )
