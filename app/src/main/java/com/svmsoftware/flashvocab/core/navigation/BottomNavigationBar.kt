@@ -36,7 +36,6 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
     NavigationBar(
         containerColor = DarkSlateBlue,
         modifier = modifier
-            .background(MidnightBlack)
             .wrapContentSize()
             .clip(
                 shape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
