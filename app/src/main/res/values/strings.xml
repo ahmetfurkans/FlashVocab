@@ -3,4 +3,7 @@
     <string name="home">Home</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="settings">Settings</string>
+    <string name="setting_screen_card_button_title">Clear all vocabularies</string>
+    <string name="setting_screen_card_button_description">Free up space on your device. Information about archives within the lessons will not be lost</string>
+    <string name="clear">Clear</string>
 </resources>

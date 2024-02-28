@@ -22,6 +22,12 @@ val Typography = Typography(
         fontSize = 20.sp,
         lineHeight = 30.sp
     ),
+    displayMedium = TextStyle(
+        fontFamily = Barlow,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        lineHeight = 24.sp
+    ),
     bodyMedium = TextStyle(
         fontFamily = Barlow,
         fontWeight = FontWeight.Medium,
