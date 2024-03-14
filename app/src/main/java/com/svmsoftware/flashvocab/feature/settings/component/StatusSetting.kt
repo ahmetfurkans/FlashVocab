@@ -29,10 +29,11 @@ fun StatusSetting(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(36.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

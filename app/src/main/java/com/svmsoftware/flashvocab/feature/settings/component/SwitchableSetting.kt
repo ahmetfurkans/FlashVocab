@@ -36,10 +36,9 @@ fun SwitchableSetting(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(36.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(32.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -48,7 +47,7 @@ fun SwitchableSetting(
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.White
             )
-            Switch(
+           Switch(
                 modifier = Modifier.scale(0.75f),
                 checked = setting.switchAbleStatus,
                 onCheckedChange = { status -> onCheckedChange(status) },
@@ -61,12 +60,13 @@ fun SwitchableSetting(
                 )
             )
         }
+        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(DarkSlateBlue)
+        )
     }
-    Spacer(
-        modifier = Modifier
-            .height(1.dp)
-            .fillMaxWidth()
-            .background(DarkSlateBlue)
-    )
 }
 

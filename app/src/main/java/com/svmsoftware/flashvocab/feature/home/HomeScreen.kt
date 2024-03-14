@@ -33,7 +33,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxSize()
-            .padding(vertical = 36.dp, horizontal = 32.dp),
+            .padding(vertical = 36.dp, horizontal = 16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
