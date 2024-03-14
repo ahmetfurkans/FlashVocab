@@ -15,11 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.svmsoftware.flashvocab.core.design_system.theme.MidnightBlue
 import com.svmsoftware.flashvocab.core.design_system.theme.VividBlue
-import com.svmsoftware.flashvocab.core.domain.TextToSpeech
 import com.svmsoftware.flashvocab.feature.home.component.LanguageSelector
 import com.svmsoftware.flashvocab.feature.home.component.TextInputField
 

@@ -30,7 +30,7 @@ import com.svmsoftware.flashvocab.core.design_system.theme.SlateGray
 fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier) {
 
     var selectedItemIndex by rememberSaveable {
-        mutableStateOf(2)
+        mutableStateOf(0)
     }
 
     NavigationBar(
