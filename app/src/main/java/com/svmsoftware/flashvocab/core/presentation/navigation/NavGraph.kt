@@ -18,7 +18,7 @@ fun SetupNavGraph(
     modifier: Modifier = Modifier, navController: NavHostController
 ) {
     NavHost(
-        navController = navController, startDestination = Screen.Bookmarks.name, modifier = modifier
+        navController = navController, startDestination = Screen.Home.name, modifier = modifier
     ) {
         composable(route = Screen.Home.name) {
             HomeScreen()

@@ -28,9 +28,13 @@ class SettingViewModel @Inject constructor(
     private fun getSettings() {
         viewModelScope.launch {
             settingRepository.getSettings().collect {
-                _state.value = state.value.copy(
-                    settings = it
-                )
+                if (it == null) {
+                    updateSettings(UserSettings())
+                } else {
+                    _state.value = state.value.copy(
+                        settings = it
+                    )
+                }
             }
         }
     }
@@ -39,17 +43,6 @@ class SettingViewModel @Inject constructor(
         viewModelScope.launch {
             settingRepository.insertSetting(
                 userSettings
-            )
-        }
-    }
-
-    fun updateTranslatedLang(uiLanguage: UiLanguage) {
-        viewModelScope.launch {
-            updateSettings(
-                state.value.settings.copy(translatedLangCode = uiLanguage.language.langCode)
-            )
-            _state.value = state.value.copy(
-                isLanguageSelectorVisible = false
             )
         }
     }

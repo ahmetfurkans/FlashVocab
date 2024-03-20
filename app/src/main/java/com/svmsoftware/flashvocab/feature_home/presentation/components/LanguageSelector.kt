@@ -1,6 +1,7 @@
 package com.svmsoftware.flashvocab.feature_home.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,8 +13,6 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +29,18 @@ import com.svmsoftware.flashvocab.core.presentation.theme.MidnightBlue
 import com.svmsoftware.flashvocab.core.presentation.theme.VividBlue
 
 @Composable
-fun LanguageSelector(modifier: Modifier = Modifier) {
+fun LanguageSelector(
+    modifier: Modifier = Modifier,
+    sourceLanguage: UiLanguage,
+    targetLanguage: UiLanguage,
+    updateLanguages: (UiLanguage?, UiLanguage?) -> Unit
+) {
 
-    var languageIsOpen by remember {
+    var sourceLanguageIsOpen by remember {
         mutableStateOf(false)
     }
 
-    var translateLanguageIsOpen by remember {
+    var targetLanguageIsOpen by remember {
         mutableStateOf(false)
     }
 
@@ -54,29 +58,30 @@ fun LanguageSelector(modifier: Modifier = Modifier) {
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                LanguageDropDown(language = UiLanguage.byCode("en"),
-                    isOpen = languageIsOpen,
+                LanguageDropDown(language = sourceLanguage,
+                    isOpen = sourceLanguageIsOpen,
                     onClick = {
-                        languageIsOpen = true
-                        translateLanguageIsOpen = false
+                        sourceLanguageIsOpen = true
+                        targetLanguageIsOpen = false
                     },
-                    onDismiss = { languageIsOpen = false },
-                    onSelectLanguage = {})
-                LanguageDropDown(language = UiLanguage.byCode("en"),
-                    isOpen = translateLanguageIsOpen,
+                    onDismiss = { sourceLanguageIsOpen = false },
+                    onSelectLanguage = { updateLanguages(it, null); sourceLanguageIsOpen = false })
+                LanguageDropDown(
+                    language = targetLanguage,
+                    isOpen = targetLanguageIsOpen,
                     onClick = {
-                        translateLanguageIsOpen = true
-                        languageIsOpen = false
+                        targetLanguageIsOpen = true
+                        sourceLanguageIsOpen = false
                     },
-                    onDismiss = { translateLanguageIsOpen = false },
-                    onSelectLanguage = {})
+                    onDismiss = { targetLanguageIsOpen = false },
+                    onSelectLanguage = { updateLanguages(null, it); targetLanguageIsOpen = false }
+                )
             }
         }
-        Box(
-            modifier = Modifier
-                .background(VividBlue, shape = RoundedCornerShape(50))
-                .padding(18.dp)
-        ) {
+        Box(modifier = Modifier
+            .background(VividBlue, shape = RoundedCornerShape(50))
+            .padding(18.dp)
+            .clickable { updateLanguages(targetLanguage, sourceLanguage) }) {
             Icon(
                 imageVector = Icons.Default.Repeat, contentDescription = null, tint = Color.White
             )

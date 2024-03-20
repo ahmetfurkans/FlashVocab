@@ -1,5 +1,9 @@
 package com.svmsoftware.flashvocab.feature_setting.presentation
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
@@ -24,6 +30,12 @@ fun SettingsScreen(
 
     val settings = viewModel.state.value.settings
     val isLanguageSelectorVisible = viewModel.state.value.isLanguageSelectorVisible
+    val context = LocalContext.current
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                viewModel.updateSettings(settings.copy(isNotificationEnabled = isGranted))
+            })
 
     Column(
         modifier
@@ -42,7 +54,13 @@ fun SettingsScreen(
                 SwitchableSetting(title = "Notification",
                     status = settings.isNotificationEnabled,
                     onCheckedChange = {
-                        viewModel.updateSettings(settings.copy(isNotificationEnabled = it))
+                        if (!settings.isNotificationEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                        if (settings.isNotificationEnabled) {
+                            NotificationManagerCompat.from(context).cancelAll()
+                            viewModel.updateSettings(settings.copy(isNotificationEnabled = false))
+                        }
                     })
             }
             item { StatusSetting(title = "Plan", status = "Free") {} }
@@ -73,4 +91,5 @@ fun SettingsScreen(
             }
         }
     }
+
 }
