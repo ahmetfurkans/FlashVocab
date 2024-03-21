@@ -7,4 +7,4 @@ enum class Screen(@StringRes val title: Int) {
     Home(title = R.string.home),
     Bookmarks(title = R.string.bookmarks),
     Settings(title = R.string.settings)
-}
+}S

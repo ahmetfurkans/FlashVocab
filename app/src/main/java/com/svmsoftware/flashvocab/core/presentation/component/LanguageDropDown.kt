@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -49,10 +50,10 @@ fun LanguageDropDown(
         }
         Row(
             modifier = Modifier
+                .wrapContentSize()
                 .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Text(
                 text = language.language.langName,
                 style = MaterialTheme.typography.bodyMedium,

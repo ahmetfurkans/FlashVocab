@@ -2,6 +2,7 @@ package com.svmsoftware.flashvocab.core.presentation.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -15,13 +16,15 @@ import com.svmsoftware.flashvocab.feature_setting.presentation.SettingsScreen
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavGraph(
-    modifier: Modifier = Modifier, navController: NavHostController
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
 ) {
     NavHost(
         navController = navController, startDestination = Screen.Home.name, modifier = modifier
     ) {
         composable(route = Screen.Home.name) {
-            HomeScreen()
+            HomeScreen(snackbarHostState = snackbarHostState)
         }
         composable(route = Screen.Bookmarks.name) {
             BookmarksScreen()

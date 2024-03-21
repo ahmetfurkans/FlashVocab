@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
@@ -28,6 +31,7 @@ class MainActivity : ComponentActivity(
 
         setContent {
             val navController = rememberNavController()
+            val snackbarHostState = remember { SnackbarHostState() }
 
             FlashVocabTheme {
                 // A surface container using the 'background' color from the theme
@@ -35,9 +39,14 @@ class MainActivity : ComponentActivity(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Scaffold(
-                        bottomBar = { BottomNavigationBar(navController = navController) }
+                        bottomBar = { BottomNavigationBar(navController = navController) },
+                        snackbarHost = { SnackbarHost(snackbarHostState) },
                     ) {
-                        SetupNavGraph(Modifier.padding(it), navController)
+                        SetupNavGraph(
+                            Modifier.padding(it),
+                            navController,
+                            snackbarHostState = snackbarHostState
+                        )
                     }
                 }
             }
