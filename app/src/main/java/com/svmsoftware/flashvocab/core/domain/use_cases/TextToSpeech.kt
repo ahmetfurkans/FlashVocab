@@ -1,4 +1,4 @@
-package com.svmsoftware.flashvocab.core.domain
+package com.svmsoftware.flashvocab.core.domain.use_cases
 
 import android.content.Context
 import android.speech.tts.TextToSpeech

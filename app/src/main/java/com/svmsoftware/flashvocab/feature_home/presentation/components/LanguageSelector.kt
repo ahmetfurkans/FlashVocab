@@ -33,7 +33,8 @@ fun LanguageSelector(
     modifier: Modifier = Modifier,
     sourceLanguage: UiLanguage,
     targetLanguage: UiLanguage,
-    updateLanguages: (UiLanguage?, UiLanguage?) -> Unit
+    updateLanguages: (UiLanguage?, UiLanguage?) -> Unit,
+    switchLanguages: () -> Unit,
 ) {
 
     var sourceLanguageIsOpen by remember {
@@ -66,22 +67,20 @@ fun LanguageSelector(
                     },
                     onDismiss = { sourceLanguageIsOpen = false },
                     onSelectLanguage = { updateLanguages(it, null); sourceLanguageIsOpen = false })
-                LanguageDropDown(
-                    language = targetLanguage,
+                LanguageDropDown(language = targetLanguage,
                     isOpen = targetLanguageIsOpen,
                     onClick = {
                         targetLanguageIsOpen = true
                         sourceLanguageIsOpen = false
                     },
                     onDismiss = { targetLanguageIsOpen = false },
-                    onSelectLanguage = { updateLanguages(null, it); targetLanguageIsOpen = false }
-                )
+                    onSelectLanguage = { updateLanguages(null, it); targetLanguageIsOpen = false })
             }
         }
         Box(modifier = Modifier
             .background(VividBlue, shape = RoundedCornerShape(50))
             .padding(18.dp)
-            .clickable { updateLanguages(targetLanguage, sourceLanguage) }) {
+            .clickable { switchLanguages() }) {
             Icon(
                 imageVector = Icons.Default.Repeat, contentDescription = null, tint = Color.White
             )
