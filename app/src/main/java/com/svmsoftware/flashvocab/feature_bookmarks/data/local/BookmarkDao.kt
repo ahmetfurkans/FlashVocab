@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface BookmarkDao {
 
     @Query("SELECT * FROM bookmark")
-    fun getBookmarks(query: String): Flow<List<Bookmark>>
+    fun getBookmarks(): Flow<List<Bookmark>>
 
     @Query("SELECT * FROM bookmark WHERE id = :id")
     suspend fun getBookmarkById(id: Int): Bookmark?
