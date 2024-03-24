@@ -67,6 +67,7 @@ dependencies {
 
     // Compose Dependencies
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
@@ -78,6 +79,7 @@ dependencies {
     //Dagger - Hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+
 
     // Google ML Kit
     implementation("com.google.cloud:google-cloud-translate:2.37.0")

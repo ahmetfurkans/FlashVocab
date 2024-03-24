@@ -21,6 +21,8 @@ import com.svmsoftware.flashvocab.core.domain.model.UiEvent
 import com.svmsoftware.flashvocab.core.presentation.theme.MidnightBlue
 import com.svmsoftware.flashvocab.core.presentation.theme.VividBlue
 import com.svmsoftware.flashvocab.feature_home.presentation.components.LanguageSelector
+import com.svmsoftware.flashvocab.feature_home.presentation.components.SourceTextBox
+import com.svmsoftware.flashvocab.feature_home.presentation.components.TargetTextBox
 import com.svmsoftware.flashvocab.feature_home.presentation.components.TextInputField
 import kotlinx.coroutines.flow.collectLatest
 
@@ -37,7 +39,6 @@ fun HomeScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is UiEvent.ShowSnackbar -> {
-                    println("girdim")
                     snackbarHostState.showSnackbar(
                         message = event.string
                     )
@@ -55,28 +56,28 @@ fun HomeScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            TextInputField(modifier = Modifier.fillMaxWidth(),
-                background = MidnightBlue,
+            SourceTextBox(modifier = Modifier.fillMaxWidth(),
                 value = state.source,
                 language = state.sourceLanguage.language.langName,
                 onSoundClick = {},
                 onSearch = {
                     viewModel.processTranslate()
                 },
-                onValueChange = { s -> viewModel.onSourceTextValueChange(s) })
+                onValueChange = { s -> viewModel.onSourceTextValueChange(s) },
+                onCleanClick = {
+                    viewModel.cleanSourceText()
+                }
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            TextInputField(
+            TargetTextBox(
                 modifier = Modifier.fillMaxWidth(),
-                labelColor = Color.White,
-                background = VividBlue,
-                readOnly = true,
                 value = state.target,
                 language = state.targetLanguage.language.langName,
                 onSoundClick = {
-                    viewModel.processTranslate()
                 },
-                onValueChange = null,
-                onSearch = null
+                onBookmarkClick = {
+                    viewModel.saveTranslation()
+                }
             )
             Spacer(modifier = Modifier.height(24.dp))
             LanguageSelector(modifier = Modifier.fillMaxWidth(),

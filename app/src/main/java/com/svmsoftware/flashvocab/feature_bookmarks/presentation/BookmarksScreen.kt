@@ -17,20 +17,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.core.domain.model.testWord
+import com.svmsoftware.flashvocab.feature_bookmarks.presentation.components.BookmarkItem
 import com.svmsoftware.flashvocab.feature_bookmarks.presentation.components.ExpandableWord
 import com.svmsoftware.flashvocab.feature_bookmarks.presentation.components.SearchTextField
+import com.svmsoftware.flashvocab.feature_home.presentation.HomeViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun BookmarksScreen(modifier: Modifier = Modifier) {
+fun BookmarksScreen(
+    modifier: Modifier = Modifier, viewModel: BookmarkViewModel = hiltViewModel()
+) {
 
     var value by remember {
         mutableStateOf("")
     }
-
-    val defaultList = listOf(testWord, testWord, testWord)
 
     Column(
         modifier
@@ -42,15 +45,13 @@ fun BookmarksScreen(modifier: Modifier = Modifier) {
             onValueChange = { value = it },
             shouldShowHint = value.isEmpty(),
             onSearch = { /*TODO*/ },
-            onFocusChanged = {}
-        )
+            onFocusChanged = {})
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn() {
-            items(defaultList) {
-                ExpandableWord(
-                    word = it,
-                    onToggleClick = { /*TODO*/ },
-                    onUnSavedButtonClick = { /*TODO*/ },
+            items(viewModel.state.value.bookmarks) {
+                BookmarkItem(
+                    item = it,
+                    onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)

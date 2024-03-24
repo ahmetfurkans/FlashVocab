@@ -8,8 +8,8 @@ import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
 data class Bookmark(
     val sourceText: String,
     val targetText: String,
-    val sourceLanguage: UiLanguage,
-    val targetLanguage: UiLanguage,
+    val sourceLanguage: String,
+    val targetLanguage: String,
     val time: Long,
     @PrimaryKey val id: Int? = null
 )

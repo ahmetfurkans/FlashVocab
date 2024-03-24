@@ -8,6 +8,8 @@ import com.svmsoftware.flashvocab.core.domain.model.UiEvent
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.util.Resource
+import com.svmsoftware.flashvocab.feature_bookmarks.domain.model.Bookmark
+import com.svmsoftware.flashvocab.feature_bookmarks.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.feature_setting.domain.repository.SettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
+    private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
 
 
@@ -101,11 +105,49 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun saveTranslation() {
+        viewModelScope.launch {
+            val result = bookmarkRepository.insertBookmark(
+                Bookmark(
+                    sourceText = state.value.source,
+                    targetText = state.value.target,
+                    targetLanguage = state.value.targetLanguage.language.langCode,
+                    sourceLanguage = state.value.sourceLanguage.language.langCode,
+                    time = System.currentTimeMillis(),
+                )
+            )
+            when (result) {
+                is Resource.Error -> {
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            string = result.desc ?: "Something went wrong!"
+                        )
+                    )
+                }
+
+                is Resource.Success -> {
+                    _eventFlow.emit(
+                        UiEvent.ShowSnackbar(
+                            string = "Translation saved bookmarks successfully!"
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun cleanSourceText() {
+        _state.value = state.value.copy(
+            target = "",
+            source = ""
+        )
+    }
+
     private fun getTargetLanguage() {
         viewModelScope.launch {
-            settingRepository.getSettings().collectLatest {
+            settingRepository.getSettings().collect() {
                 _state.value = state.value.copy(
-                    targetLanguage = UiLanguage.byCode("en")
+                    targetLanguage = UiLanguage.byCode(it.translatedLangCode)
                 )
             }
         }
