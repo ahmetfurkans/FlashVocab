@@ -2,9 +2,9 @@ package com.svmsoftware.flashvocab.di
 
 import android.app.Application
 import androidx.room.Room
-import com.svmsoftware.flashvocab.feature_bookmarks.data.local.BookmarkDatabase
-import com.svmsoftware.flashvocab.feature_bookmarks.data.repository.BookmarkRepositoryImpl
-import com.svmsoftware.flashvocab.feature_bookmarks.domain.repository.BookmarkRepository
+import com.svmsoftware.flashvocab.core.data.local.BookmarkDatabase
+import com.svmsoftware.flashvocab.core.data.repository.BookmarkRepositoryImpl
+import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

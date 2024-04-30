@@ -6,11 +6,14 @@ import com.google.cloud.translate.TranslateException
 import com.google.cloud.translate.TranslateOptions
 import com.google.cloud.translate.Translation
 import com.svmsoftware.flashvocab.core.util.Resource
-import java.lang.Exception
 
+/*
+    This function must call always background thread.
+ */
 class ProcessTranslate {
-    operator fun invoke(
-        targetLang: String, sourceLang: String, source: String
+
+    operator fun  invoke(
+        targetLang: String, source: String
     ): Resource<String> {
         return try {
             if (source.isBlank()) {
@@ -21,8 +24,7 @@ class ProcessTranslate {
             val translate = TranslateOptions.newBuilder().setApiKey(API_KEY).build().service
             val translation: Translation = translate.translate(
                 source,
-                Translate.TranslateOption.targetLanguage(targetLang),
-                Translate.TranslateOption.sourceLanguage(sourceLang)
+                Translate.TranslateOption.targetLanguage(targetLang)
             )
             Resource.Success(translation.translatedText)
         } catch (e: TranslateException) {

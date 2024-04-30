@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.svmsoftware.flashvocab.feature_bookmarks.presentation.BookmarksScreen
-import com.svmsoftware.flashvocab.feature_home.presentation.HomeScreen
-import com.svmsoftware.flashvocab.feature_setting.presentation.SettingsScreen
+import com.svmsoftware.flashvocab.feature_bookmarks.BookmarksScreen
+import com.svmsoftware.flashvocab.feature_home.HomeScreen
+import com.svmsoftware.flashvocab.feature_setting.SettingsScreen
 
 
 @RequiresApi(Build.VERSION_CODES.O)

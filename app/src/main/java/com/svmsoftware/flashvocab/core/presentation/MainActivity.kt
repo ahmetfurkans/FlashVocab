@@ -1,5 +1,8 @@
 package com.svmsoftware.flashvocab.core.presentation
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,6 +22,8 @@ import androidx.navigation.compose.rememberNavController
 import com.svmsoftware.flashvocab.core.presentation.navigation.BottomNavigationBar
 import com.svmsoftware.flashvocab.core.presentation.navigation.SetupNavGraph
 import com.svmsoftware.flashvocab.core.presentation.theme.FlashVocabTheme
+import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_ID
+import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_NAME
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -28,6 +33,8 @@ class MainActivity : ComponentActivity(
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        createNotificationChannel()
 
         setContent {
             val navController = rememberNavController()
@@ -52,4 +59,32 @@ class MainActivity : ComponentActivity(
             }
         }
     }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is not in the Support Library.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = CHANNEL_NAME
+            val descriptionText = CHANNEL_NAME
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+            println("not exit app")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        println("if not exit work, not exit else exit")
+    }
 }
+

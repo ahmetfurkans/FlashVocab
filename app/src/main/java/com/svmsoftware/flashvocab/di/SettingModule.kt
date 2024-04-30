@@ -2,9 +2,9 @@ package com.svmsoftware.flashvocab.di
 
 import android.app.Application
 import androidx.room.Room
-import com.svmsoftware.flashvocab.feature_setting.data.local.SettingDatabase
-import com.svmsoftware.flashvocab.feature_setting.data.repository.SettingRepositoryImpl
-import com.svmsoftware.flashvocab.feature_setting.domain.repository.SettingRepository
+import com.svmsoftware.flashvocab.core.data.local.SettingDatabase
+import com.svmsoftware.flashvocab.core.data.repository.SettingRepositoryImpl
+import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
