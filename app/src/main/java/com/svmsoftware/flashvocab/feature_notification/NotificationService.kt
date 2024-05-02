@@ -14,13 +14,11 @@ class NotificationService : Service() {
     lateinit var notificationManager: NotificationManager
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        }
 
         val word = intent?.getStringExtra("word")
+        println("girdim onStartCommand")
 
-        notificationManager.getSettings(word)
+        notificationManager.performTranslationNotification()
 
         return super.onStartCommand(intent, flags, startId)
     }

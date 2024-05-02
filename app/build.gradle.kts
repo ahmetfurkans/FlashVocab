@@ -81,9 +81,12 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
 
-
     // Google ML Kit
     implementation("com.google.cloud:google-cloud-translate:2.37.0")
+
+    // Debug
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

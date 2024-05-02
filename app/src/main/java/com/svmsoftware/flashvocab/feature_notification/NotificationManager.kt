@@ -16,35 +16,38 @@ import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.presentation.MainActivity
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManagerCompat,
-    @ApplicationContext private val context: Context
 ) {
 
     private val _state = MutableStateFlow(NotificationState())
     val state: StateFlow<NotificationState> = _state
 
-    val snoozeIntent = Intent(context, MainActivity::class.java).apply {
+    private var performTranslationNotificationJob: Job? = null
 
+    fun performTranslationNotification() {
+        println("girdim performTranslationNotification")
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                getSettings()
+            }
+        }
     }
 
-    private var getSettingsJob: Job? = null
-
-    val snoozePendingIntent: PendingIntent =
-        PendingIntent.getBroadcast(context, 0, snoozeIntent, FLAG_IMMUTABLE)
-
-    fun
-
-    fun processTranslate(word: String?) {
+    private fun processTranslate(word: String?) {
         if (word.isNullOrEmpty()) {
             showNotification("Something went wrong")
         } else {
@@ -83,33 +86,21 @@ class NotificationManager @Inject constructor(
 
         notificationManager.notify(
             1, notificationBuilder
-                .setStyle(NotificationCompat.BigTextStyle()
-                    .bigText(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT)))
-                .addAction(
-                    R.drawable.turkish, "Save",
-                    snoozePendingIntent
-                )
-                .addAction(
-                    R.drawable.turkish, "Read Source Text",
-                    snoozePendingIntent
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT))
                 )
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build()
         )
     }
 
-    fun getSettings(word: String?) {
-        GlobalScope.launch {
-            settingRepository.getSettings().collect {
-                if (it == null) {
-                    settingRepository.insertSetting(UserSettings())
-                } else {
-                    _state.value = _state.value.copy(
-                        userSettings = it
-                    )
-                    processTranslate(word)
-                }
-            }
-        }
+    private suspend fun getSettings() {
+        val result = settingRepository.getSettings().single()
+
+        println("girdim getSettings")
+        _state.value = _state.value.copy(
+            userSettings = result
+        )
     }
 }
