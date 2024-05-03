@@ -14,8 +14,8 @@ class NotificationActivity : AppCompatActivity() {
 
         val serviceIntent = Intent(applicationContext, NotificationService::class.java).apply {
             putExtra("word", word)
+            startService(this)
         }
-        ContextCompat.startForegroundService(applicationContext, serviceIntent)
 
         this.finish()
     }

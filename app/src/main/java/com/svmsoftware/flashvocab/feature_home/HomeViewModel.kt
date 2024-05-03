@@ -27,9 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
-    private val bookmarkRepository: BookmarkRepository,
-    private val notificationBuilder: NotificationCompat.Builder,
-    private val notificationManager: NotificationManagerCompat,
+    private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())

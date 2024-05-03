@@ -14,7 +14,7 @@ import javax.inject.Inject
 class FlashVocabApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        createTranslationNotificationChannel()
+        //createTranslationNotificationChannel()
     }
 
     private fun createTranslationNotificationChannel() {

@@ -16,9 +16,7 @@ class NotificationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         val word = intent?.getStringExtra("word")
-        println("girdim onStartCommand")
-
-        notificationManager.performTranslationNotification()
+        notificationManager.performTranslationNotification(word)
 
         return super.onStartCommand(intent, flags, startId)
     }
