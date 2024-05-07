@@ -5,57 +5,66 @@ import android.content.Context
 import android.content.Intent
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
-import com.svmsoftware.flashvocab.core.util.Resource
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
+import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.ActionExtra
+import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.OriginalTextExtra
+import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.SourceLanguageCodeExtra
+import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.TargetLanguageCodeExtra
+import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.TranslatedTextExtra
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class NotificationReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var bookmarkRepository: BookmarkRepository
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        val action = intent?.getStringExtra("action")
-        val target = intent?.getStringExtra("target")
-        val source = intent?.getStringExtra("source")
-        val targetLang = intent?.getStringExtra("targetLang")
-        val sourceLang = intent?.getStringExtra("sourceLang")
+    @Inject
+    lateinit var textToSpeech: TextToSpeech
 
-        if (action == "textToSpeech") {
-            //textToSpeech(source!!)
-            println("girdim textToSpeech")
-        } else {
-            val bookmark = Bookmark(
-                sourceText = target!!,
-                targetText = source!!,
-                targetLanguage = targetLang!!,
-                sourceLanguage = sourceLang!!,
-                time = System.currentTimeMillis(),
-            )
-            saveTranslation(bookmark = bookmark)
-            println("girdim save")
+    override fun onReceive(context: Context?, intent: Intent?) {
+
+        val action = intent?.getStringExtra(ActionExtra)
+        val source = intent?.getStringExtra(TranslatedTextExtra)
+        val target = intent?.getStringExtra(OriginalTextExtra)
+        val sourceLang = intent?.getStringExtra(SourceLanguageCodeExtra)
+        val targetLang = intent?.getStringExtra(TargetLanguageCodeExtra)
+
+        val bookmark = Bookmark(
+            sourceText = target!!,
+            targetText = source!!,
+            targetLanguage = targetLang!!,
+            sourceLanguage = sourceLang!!,
+            time = System.currentTimeMillis(),
+        )
+
+        when (action?.let { NotificationManager.Actions.valueOf(it) }) {
+            NotificationManager.Actions.Save -> {
+                saveTranslation(bookmark = bookmark)
+            }
+
+            NotificationManager.Actions.TextToSpeech -> {
+                textToSpeech(source)
+            }
+
+            else -> {}
         }
     }
 
-    fun saveTranslation(bookmark: Bookmark) {
+    private fun saveTranslation(bookmark: Bookmark) {
         CoroutineScope(Dispatchers.IO).launch {
-            val result = bookmarkRepository.insertBookmark(
+            bookmarkRepository.insertBookmark(
                 bookmark
             )
-            when (result) {
-                is Resource.Error -> {
-                }
-
-                is Resource.Success -> {
-                }
-            }
         }
     }
 
-    fun textToSpeech(text: String) {
-        //TextToSpeech().invoke(text, applicationContext)
+    private fun textToSpeech(text: String) {
+        textToSpeech.invoke(text)
     }
 
 }

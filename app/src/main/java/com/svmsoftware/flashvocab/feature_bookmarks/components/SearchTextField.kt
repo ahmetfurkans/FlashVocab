@@ -44,7 +44,10 @@ fun SearchTextField(
     ) {
         BasicTextField(
             value = text,
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.White,
+                fontWeight = FontWeight.Light
+            ),
             onValueChange = onValueChange,
             singleLine = true,
             keyboardActions = KeyboardActions(
@@ -56,19 +59,19 @@ fun SearchTextField(
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Search,
             ),
-            modifier = Modifier.run {
-                clip(RoundedCornerShape(5.dp))
-                    .padding(2.dp)
-                    .shadow(
-                        elevation = 2.dp,
-                        shape = RoundedCornerShape(5.dp)
-                    )
-                    .background(MidnightBlue)
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .padding(20.dp)
-                    .onFocusChanged { onFocusChanged(it) }
-            }
+            modifier = Modifier
+                .clip(RoundedCornerShape(5.dp))
+                .shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(5.dp)
+                )
+                .background(MidnightBlue)
+                .fillMaxWidth()
+                .align(Alignment.CenterStart)
+                .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                .onFocusChanged {
+                    onFocusChanged(it)
+                }
         )
         if (shouldShowHint) {
             Text(
@@ -81,7 +84,7 @@ fun SearchTextField(
                     .padding(start = 20.dp)
             )
         }
-        IconButton(
+        /*IconButton(
             onClick = onSearch,
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
@@ -90,6 +93,6 @@ fun SearchTextField(
                 tint = Color.White,
                 contentDescription = stringResource(id = R.string.search)
             )
-        }
+        }*/
     }
 }

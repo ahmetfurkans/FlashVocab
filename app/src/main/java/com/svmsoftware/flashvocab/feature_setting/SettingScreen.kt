@@ -16,8 +16,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
+import com.svmsoftware.flashvocab.core.presentation.navigation.Screen
 import com.svmsoftware.flashvocab.feature_setting.components.CardButton
 import com.svmsoftware.flashvocab.feature_setting.components.LanguageSetting
 import com.svmsoftware.flashvocab.feature_setting.components.StatusSetting
@@ -25,7 +27,9 @@ import com.svmsoftware.flashvocab.feature_setting.components.SwitchableSetting
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier, viewModel: SettingViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    viewModel: SettingViewModel = hiltViewModel(),
+    navController: NavController
 ) {
 
     val settings = viewModel.state.value.settings
@@ -63,7 +67,11 @@ fun SettingsScreen(
                         }
                     })
             }
-            item { StatusSetting(title = "Plan", status = "Free") {} }
+            item {
+                StatusSetting(title = "Plan", status = "Free") {
+                    navController.navigate(Screen.Premium.name)
+                }
+            }
             item {
                 SwitchableSetting(title = "Auto Read",
                     status = settings.isAutoReadEnabled,

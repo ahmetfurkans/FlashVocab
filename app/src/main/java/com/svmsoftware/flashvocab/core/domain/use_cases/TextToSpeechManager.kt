@@ -2,24 +2,23 @@ package com.svmsoftware.flashvocab.core.domain.use_cases
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
 import javax.inject.Inject
 
-class TextToSpeech @Inject constructor(
+class TextToSpeechManager @Inject constructor(
     private val context: Context
 ) {
 
     private var textToSpeech: TextToSpeech? = null
-    operator fun invoke(text: String) {
+
+    fun speak(text: String, langCode: String) {
         textToSpeech = TextToSpeech(
             context
         ) {
+
             if (it == TextToSpeech.SUCCESS) {
                 textToSpeech?.let { txtToSpeech ->
-                    txtToSpeech.language = Locale.US
+                    txtToSpeech.setLanguage(Locale(langCode))
                     txtToSpeech.setSpeechRate(1.0f)
                     txtToSpeech.speak(
                         text, TextToSpeech.QUEUE_ADD, null, null
@@ -27,5 +26,9 @@ class TextToSpeech @Inject constructor(
                 }
             }
         }
+    }
+
+    fun shutdown() {
+        textToSpeech?.shutdown()
     }
 }

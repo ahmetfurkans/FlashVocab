@@ -14,6 +14,17 @@ interface BookmarkDao {
     @Query("SELECT * FROM bookmark")
     fun getBookmarks(): Flow<List<Bookmark>>
 
+    @Query(
+        """
+            SELECT * 
+            FROM bookmark
+            WHERE LOWER(sourceText) LIKE '%' || LOWER(:query) || '%' OR
+                LOWER(targetText) LIKE '%' || LOWER(:query) || '%'
+        """
+    )
+    fun getBookmarks2(query: String?): Flow<List<Bookmark>>
+
+
     @Query("SELECT * FROM bookmark WHERE id = :id")
     suspend fun getBookmarkById(id: Int): Bookmark?
 

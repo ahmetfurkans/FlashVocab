@@ -6,14 +6,17 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.text.Html
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.svmsoftware.flashvocab.R
+import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
 import com.svmsoftware.flashvocab.core.presentation.MainActivity
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -38,10 +41,24 @@ import javax.inject.Inject
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
+    private val bookmarkRepository: BookmarkRepository,
+    private val textToSpeech: TextToSpeech,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManagerCompat,
     @ApplicationContext private val applicationContext: Context,
 ) {
+
+    companion object {
+        const val ActionExtra = "action"
+        const val OriginalTextExtra = "originalText"
+        const val TranslatedTextExtra = "translatedText"
+        const val SourceLanguageCodeExtra = "sourceLanguageCode"
+        const val TargetLanguageCodeExtra = "targetLanguageCode"
+    }
+
+    enum class Actions {
+        Save, Discard, TextToSpeech
+    }
 
     private val _state = MutableStateFlow(NotificationState())
     val state: StateFlow<NotificationState> = _state
@@ -50,6 +67,15 @@ class NotificationManager @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             getSettings()
             processTranslate(word)
+            if (state.value.userSettings?.isAutoSaveEnabled!!) {
+                saveTranslation()
+                _state.value = state.value.copy(
+                    isAlreadySaved = true
+                )
+            }
+            if (state.value.userSettings?.isAutoReadEnabled!!) {
+                textToSpeech.invoke(state.value.originalText)
+            }
         }
     }
 
@@ -61,15 +87,17 @@ class NotificationManager @Inject constructor(
     }
 
     private fun processTranslate(word: String?) {
-        if (word.isNullOrEmpty()) {
-        } else {
+        if (!word.isNullOrEmpty()) {
             val result = ProcessTranslate().invoke(
                 source = word, targetLang = state.value.userSettings?.translatedLangCode!!
             )
             when (result) {
                 is Resource.Success -> {
                     _state.value = _state.value.copy(
-                        textToTranslate = word, translatedText = result.data!!,
+                        originalText = word,
+                        translatedText = result.data?.translatedText!!,
+                        sourceLanguageCode = result.data.sourceLanguage,
+                        targetLanguageCode = state.value.userSettings?.translatedLangCode!!
                     )
                     showTranslationSuccessNotification()
                 }
@@ -84,30 +112,35 @@ class NotificationManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun showTranslationSuccessNotification() {
-
         val saveBookmarksIntent = PendingIntent.getBroadcast(
             applicationContext,
             2,
             Intent(applicationContext, NotificationReceiver::class.java).apply {
-                putExtra("action", "save_bookmarks")
-                putExtra("source", state.value.textToTranslate)
-                putExtra("target", state.value.translatedText)
-                putExtra("sourceLang", state.value.sourceLanguageCode)
-                putExtra("targetLang", state.value.targetLanguageCode)
+
+                putExtra(ActionExtra, Actions.Save.name)
+                putExtra(OriginalTextExtra, state.value.originalText)
+                putExtra(TranslatedTextExtra, state.value.translatedText)
+                putExtra(SourceLanguageCodeExtra, state.value.sourceLanguageCode)
+                putExtra(TargetLanguageCodeExtra, state.value.targetLanguageCode)
+                _state.value = state.value.copy(
+                    isAlreadySaved = true
+                )
             },
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else 0,
         )
 
         val textToSpeechIntent = PendingIntent.getBroadcast(
             applicationContext,
             1,
             Intent(applicationContext, NotificationReceiver::class.java).apply {
-                putExtra("action", "textToSpeech")
+                putExtra(ActionExtra, Actions.TextToSpeech.name)
+                putExtra(TranslatedTextExtra, state.value.translatedText)
             },
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else 0
         )
 
-        val textToTranslate = state.value.textToTranslate
+
+        val textToTranslate = state.value.originalText
         val translatedText = state.value.translatedText
 
         val notificationContent = """
@@ -119,14 +152,16 @@ class NotificationManager @Inject constructor(
            """.trimIndent()
 
         notificationManager.notify(
-            1, notificationBuilder.setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
-            ).addAction(
-                R.drawable.italian, "Add Bookmarks", saveBookmarksIntent
-            ).addAction(
-                R.drawable.italian, "Text To Speech", textToSpeechIntent
-            ).build()
+            1, notificationBuilder
+                .setContentText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
+                ).addAction(
+                    R.drawable.italian, "Add Bookmarks", saveBookmarksIntent
+                ).addAction(
+                    R.drawable.italian, "Text To Speech", textToSpeechIntent
+                ).build()
         )
     }
 
@@ -146,5 +181,21 @@ class NotificationManager @Inject constructor(
                     .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
             ).build()
         )
+    }
+
+    fun saveTranslation() {
+        val bookmark = Bookmark(
+            sourceText = state.value.originalText,
+            targetText = state.value.translatedText,
+            targetLanguage = state.value.targetLanguageCode,
+            sourceLanguage = state.value.sourceLanguageCode,
+            time = System.currentTimeMillis(),
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            bookmarkRepository.insertBookmark(
+                bookmark
+            )
+        }
     }
 }

@@ -23,4 +23,9 @@ class NotificationService : Service() {
 
     override fun onBind(p0: Intent?): IBinder? = null
 
+    override fun onDestroy() {
+        super.onDestroy()
+        println("hi service onDestroy")
+    }
+
 }

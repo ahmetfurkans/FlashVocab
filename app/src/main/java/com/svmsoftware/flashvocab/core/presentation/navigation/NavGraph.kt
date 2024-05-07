@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.svmsoftware.flashvocab.feature_bookmarks.BookmarksScreen
 import com.svmsoftware.flashvocab.feature_home.HomeScreen
+import com.svmsoftware.flashvocab.feature_paywall.PaywallScreen
 import com.svmsoftware.flashvocab.feature_setting.SettingsScreen
 
 
@@ -21,16 +22,19 @@ fun SetupNavGraph(
     snackbarHostState: SnackbarHostState
 ) {
     NavHost(
-        navController = navController, startDestination = Screen.Home.name, modifier = modifier
+        navController = navController, startDestination = Screen.Premium.name, modifier = modifier
     ) {
         composable(route = Screen.Home.name) {
             HomeScreen(snackbarHostState = snackbarHostState)
         }
         composable(route = Screen.Bookmarks.name) {
-            BookmarksScreen()
+            BookmarksScreen(snackbarHostState = snackbarHostState)
         }
         composable(route = Screen.Settings.name) {
-            SettingsScreen()
+            SettingsScreen(navController = navController)
+        }
+        composable(route = Screen.Premium.name) {
+            PaywallScreen()
         }
     }
 }

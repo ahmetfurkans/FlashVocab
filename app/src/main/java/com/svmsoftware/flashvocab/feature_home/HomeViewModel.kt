@@ -13,6 +13,7 @@ import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
-    private val bookmarkRepository: BookmarkRepository
+    private val bookmarkRepository: BookmarkRepository,
+    private val textToSpeech: TextToSpeech
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -83,32 +85,38 @@ class HomeViewModel @Inject constructor(
     }
 
     fun processTranslate() {
-        processTranslateJob?.cancel()
+        if (state.value.source.isNotEmpty()) {
+            processTranslateJob?.cancel()
 
-        processTranslateJob = viewModelScope.launch(Dispatchers.IO) {
-            delay(1000)
-            val result = ProcessTranslate().invoke(
-                source = state.value.source,
-                targetLang = state.value.targetLanguage.language.langCode
-            )
+            processTranslateJob = viewModelScope.launch(Dispatchers.IO) {
+                delay(1000)
+                val result = ProcessTranslate().invoke(
+                    source = state.value.source,
+                    targetLang = state.value.targetLanguage.language.langCode
+                )
 
-            when (result) {
-                is Resource.Success -> {
-                    _state.value = state.value.copy(
-                        target = result.data ?: ""
-                    )
-                    println("Counter" + state.value.source)
-                }
-
-                is Resource.Error -> {
-                    _eventFlow.emit(
-                        UiEvent.ShowSnackbar(
-                            string = result.desc ?: "Something went wrong!"
+                when (result) {
+                    is Resource.Success -> {
+                        _state.value = state.value.copy(
+                            target = result.data?.translatedText ?: ""
                         )
-                    )
+                        println("Counter" + state.value.source)
+                    }
+
+                    is Resource.Error -> {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                string = result.desc ?: "Something went wrong!"
+                            )
+                        )
+                    }
                 }
             }
         }
+    }
+
+    fun textToSpeech() {
+        textToSpeech.invoke(state.value.target)
     }
 
     fun saveTranslation() {

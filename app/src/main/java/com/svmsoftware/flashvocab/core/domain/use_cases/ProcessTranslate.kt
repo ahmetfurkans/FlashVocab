@@ -14,7 +14,7 @@ class ProcessTranslate {
 
     operator fun  invoke(
         targetLang: String, source: String
-    ): Resource<String> {
+    ): Resource<Translation> {
         return try {
             if (source.isBlank()) {
                 return Resource.Error("You should type something.")
@@ -26,13 +26,13 @@ class ProcessTranslate {
                 source,
                 Translate.TranslateOption.targetLanguage(targetLang)
             )
-            Resource.Success(translation.translatedText)
+            Resource.Success(translation)
         } catch (e: TranslateException) {
-            Resource.Error(desc = e.message.toString())
+            Resource.Error("Translation Error: An error occurred while translating.")
         } catch (e: BaseHttpServiceException) {
-            Resource.Error(desc = e.message.toString())
+            Resource.Error("HTTP Service Error: An error occurred while communicating with the backend server.")
         } catch (e: Exception) {
-            Resource.Error(desc = e.message.toString())
+            Resource.Error("An unexpected error occurred. Please try again later.")
         }
     }
 }

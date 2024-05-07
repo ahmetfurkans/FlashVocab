@@ -1,6 +1,7 @@
 package com.svmsoftware.flashvocab.feature_setting.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +23,9 @@ fun StatusSetting(
 ) {
 
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClickSetting() }
     ) {
         Row(
             modifier = Modifier

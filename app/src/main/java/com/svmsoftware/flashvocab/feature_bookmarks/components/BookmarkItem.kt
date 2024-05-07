@@ -26,7 +26,7 @@ import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 @Composable
 fun BookmarkItem(
     item: Bookmark,
-    onClick: () -> Unit,
+    textToSpeech: (String, String) -> Unit,
     modifier: Modifier
 ) {
 
@@ -37,7 +37,6 @@ fun BookmarkItem(
         modifier = modifier
             .background(MidnightBlue)
             .clip(RoundedCornerShape(20.dp))
-            .clickable(onClick = onClick)
             .padding(16.dp)
     ) {
         Row(
@@ -47,6 +46,9 @@ fun BookmarkItem(
             SmallLanguageIcon(language = sourceUiLanguage)
             Spacer(modifier = Modifier.width(16.dp))
             Text(
+                modifier = modifier.clickable {
+                    textToSpeech(item.sourceText, sourceUiLanguage.language.langCode)
+                },
                 text = item.sourceText,
                 color = Color.White,
                 style = MaterialTheme.typography.bodySmall
@@ -60,6 +62,9 @@ fun BookmarkItem(
             SmallLanguageIcon(language = targetUiLanguage)
             Spacer(modifier = Modifier.width(16.dp))
             Text(
+                modifier = modifier.clickable {
+                    textToSpeech(item.targetText, targetUiLanguage.language.langCode)
+                },
                 text = item.targetText,
                 color = PastelBlue,
                 style = MaterialTheme.typography.bodySmall,

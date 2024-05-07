@@ -17,6 +17,10 @@ class BookmarkRepositoryImpl(
         return dao.getBookmarkById(id)
     }
 
+    override fun getBookmarks2(query: String): Flow<List<Bookmark>> {
+        return dao.getBookmarks2(query)
+    }
+
     override suspend fun insertBookmark(bookmark: Bookmark): Resource<Bookmark> {
         return if (bookmark.sourceText.isBlank()) {
             Resource.Error(desc = "The source text can't be empty.")

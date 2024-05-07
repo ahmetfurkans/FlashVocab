@@ -10,6 +10,8 @@ interface BookmarkRepository {
 
     suspend fun getBookmarkById(id: Int): Bookmark?
 
+    fun getBookmarks2(query: String): Flow<List<Bookmark>>
+
     suspend fun insertBookmark(bookmark: Bookmark): Resource<Bookmark>
 
     suspend fun deleteBookmark(bookmark: Bookmark)

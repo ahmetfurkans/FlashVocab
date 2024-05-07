@@ -15,12 +15,12 @@ class SettingViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
 ) : ViewModel() {
 
+    private val _state = mutableStateOf(SettingState())
+    val state: State<SettingState> = _state
+
     init {
         getSettings()
     }
-
-    private val _state = mutableStateOf(SettingState())
-    val state: State<SettingState> = _state
 
     private fun getSettings() {
         viewModelScope.launch {

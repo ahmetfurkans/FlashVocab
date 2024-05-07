@@ -32,7 +32,7 @@ val Typography = Typography(
         fontFamily = Barlow,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        lineHeight = 24.sp
+        lineHeight = 24.sp,
     ),
     bodySmall = TextStyle(
         fontFamily = Barlow,
