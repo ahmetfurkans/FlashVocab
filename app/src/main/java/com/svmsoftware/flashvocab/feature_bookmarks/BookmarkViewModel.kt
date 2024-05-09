@@ -35,7 +35,7 @@ class BookmarkViewModel @Inject constructor(
 
     private fun getBookmarks() {
         getBookmarkJob?.cancel()
-        getBookmarkJob = bookmarkRepository.getBookmarks2(state.value.query).onEach { bookmarks ->
+        getBookmarkJob = bookmarkRepository.getBookmarks(state.value.query).onEach { bookmarks ->
             val sortedList = bookmarks.sortedByDescending { it.time }
             _state.value = state.value.copy(
                 bookmarks = sortedList

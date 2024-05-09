@@ -20,7 +20,7 @@ object BookmarkModule {
     fun provideBookmarkDatabase(app: Application): BookmarkDatabase {
         return Room.databaseBuilder(
             app, BookmarkDatabase::class.java, BookmarkDatabase.DATABASE_NAME
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

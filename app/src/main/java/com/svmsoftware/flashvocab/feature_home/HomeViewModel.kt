@@ -2,8 +2,7 @@ package com.svmsoftware.flashvocab.feature_home
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
@@ -44,7 +43,6 @@ class HomeViewModel @Inject constructor(
         getTargetLanguage()
     }
 
-
     fun updateLanguages(sourceLanguage: UiLanguage?, targetLanguage: UiLanguage?) {
         sourceLanguage?.let {
             _state.value = state.value.copy(
@@ -71,13 +69,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSourceTextValueChange(sourceText: String) {
-        val result = ProcessTranslate().invoke(
-            source = state.value.source,
-            targetLang = state.value.targetLanguage.language.langCode
-        )
-
-        println(result.desc)
-
         _state.value = state.value.copy(
             source = sourceText
         )
@@ -85,11 +76,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun processTranslate() {
+        processTranslateJob?.cancel()
         if (state.value.source.isNotEmpty()) {
-            processTranslateJob?.cancel()
-
             processTranslateJob = viewModelScope.launch(Dispatchers.IO) {
-                delay(1000)
+                delay(100)
                 val result = ProcessTranslate().invoke(
                     source = state.value.source,
                     targetLang = state.value.targetLanguage.language.langCode
@@ -100,7 +90,6 @@ class HomeViewModel @Inject constructor(
                         _state.value = state.value.copy(
                             target = result.data?.translatedText ?: ""
                         )
-                        println("Counter" + state.value.source)
                     }
 
                     is Resource.Error -> {
@@ -112,6 +101,8 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+        } else {
+            cleanSourceText()
         }
     }
 
@@ -123,8 +114,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val result = bookmarkRepository.insertBookmark(
                 Bookmark(
-                    sourceText = state.value.source,
-                    targetText = state.value.target,
+                    originalText = state.value.source,
+                    translatedText = state.value.target,
                     targetLanguage = state.value.targetLanguage.language.langCode,
                     sourceLanguage = state.value.sourceLanguage.language.langCode,
                     time = System.currentTimeMillis(),

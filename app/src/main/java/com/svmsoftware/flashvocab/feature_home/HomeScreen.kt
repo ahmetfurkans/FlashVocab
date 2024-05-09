@@ -1,6 +1,8 @@
 package com.svmsoftware.flashvocab.feature_home
 
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.core.domain.model.UiEvent
@@ -30,6 +34,7 @@ fun HomeScreen(
 ) {
 
     val state = viewModel.state.value
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
@@ -46,10 +51,15 @@ fun HomeScreen(
     }
 
     Column(
-        modifier
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            }
             .fillMaxSize()
             .padding(vertical = 36.dp, horizontal = 16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
             SourceTextBox(modifier = Modifier.fillMaxWidth(),

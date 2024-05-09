@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 interface BookmarkRepository {
 
-    fun getBookmarks(): Flow<List<Bookmark>>
-
     suspend fun getBookmarkById(id: Int): Bookmark?
 
-    fun getBookmarks2(query: String): Flow<List<Bookmark>>
+    fun getBookmarks(query: String): Flow<List<Bookmark>>
 
     suspend fun insertBookmark(bookmark: Bookmark): Resource<Bookmark>
 
     suspend fun deleteBookmark(bookmark: Bookmark)
+
+    suspend fun deleteAllBookmarks()
 
 }

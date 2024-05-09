@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.svmsoftware.flashvocab.core.domain.model.UserSettings
+import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -13,6 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
+    private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(SettingState())
@@ -48,5 +50,11 @@ class SettingViewModel @Inject constructor(
         _state.value = state.value.copy(
             isLanguageSelectorVisible = isOpen
         )
+    }
+
+    fun deleteAllBookmarks() {
+        viewModelScope.launch {
+            bookmarkRepository.deleteAllBookmarks()
+        }
     }
 }

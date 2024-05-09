@@ -19,7 +19,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
-import com.svmsoftware.flashvocab.core.presentation.navigation.Screen
 import com.svmsoftware.flashvocab.feature_setting.components.CardButton
 import com.svmsoftware.flashvocab.feature_setting.components.LanguageSetting
 import com.svmsoftware.flashvocab.feature_setting.components.StatusSetting
@@ -69,7 +68,6 @@ fun SettingsScreen(
             }
             item {
                 StatusSetting(title = "Plan", status = "Free") {
-                    navController.navigate(Screen.Premium.name)
                 }
             }
             item {
@@ -95,7 +93,9 @@ fun SettingsScreen(
                         R.string.setting_screen_card_button_description
                     ),
                     buttonTitle = stringResource(R.string.clear)
-                ) {}
+                ) {
+                    viewModel.deleteAllBookmarks()
+                }
             }
         }
     }

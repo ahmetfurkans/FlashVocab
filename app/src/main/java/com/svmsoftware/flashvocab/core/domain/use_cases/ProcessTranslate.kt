@@ -16,9 +16,6 @@ class ProcessTranslate {
         targetLang: String, source: String
     ): Resource<Translation> {
         return try {
-            if (source.isBlank()) {
-                return Resource.Error("You should type something.")
-            }
             val API_KEY = "AIzaSyCBrBgTX8KYYz9MsahpDc7vOy_8eeb3QqU"
 
             val translate = TranslateOptions.newBuilder().setApiKey(API_KEY).build().service
@@ -27,7 +24,8 @@ class ProcessTranslate {
                 Translate.TranslateOption.targetLanguage(targetLang)
             )
             Resource.Success(translation)
-        } catch (e: TranslateException) {
+        }
+        catch (e: TranslateException) {
             Resource.Error("Translation Error: An error occurred while translating.")
         } catch (e: BaseHttpServiceException) {
             Resource.Error("HTTP Service Error: An error occurred while communicating with the backend server.")

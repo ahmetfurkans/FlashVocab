@@ -2,6 +2,7 @@ package com.svmsoftware.flashvocab.feature_bookmarks
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.feature_bookmarks.components.BookmarkItem
@@ -42,9 +45,15 @@ fun BookmarksScreen(
 ) {
 
     val scope = rememberCoroutineScope()
+    val localFocusManager = LocalFocusManager.current
 
     Column(
         modifier
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    localFocusManager.clearFocus()
+                })
+            }
             .fillMaxSize()
             .padding(vertical = 36.dp, horizontal = 16.dp)
     ) {

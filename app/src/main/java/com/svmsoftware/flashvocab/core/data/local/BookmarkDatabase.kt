@@ -6,7 +6,7 @@ import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 
 @Database(
     entities = [Bookmark::class],
-    version = 1
+    version = 3
 )
 abstract class BookmarkDatabase : RoomDatabase() {
 

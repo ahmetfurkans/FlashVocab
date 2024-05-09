@@ -17,6 +17,7 @@ import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
 import com.svmsoftware.flashvocab.core.presentation.MainActivity
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -42,7 +43,7 @@ import javax.inject.Inject
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val textToSpeech: TextToSpeech,
+    private val textToSpeechManager: TextToSpeechManager,
     private val notificationBuilder: NotificationCompat.Builder,
     private val notificationManager: NotificationManagerCompat,
     @ApplicationContext private val applicationContext: Context,
@@ -74,7 +75,8 @@ class NotificationManager @Inject constructor(
                 )
             }
             if (state.value.userSettings?.isAutoReadEnabled!!) {
-                textToSpeech.invoke(state.value.originalText)
+                textToSpeechManager.shutdown()
+                textToSpeechManager.speak(state.value.originalText, state.value.sourceLanguageCode)
             }
         }
     }
@@ -103,7 +105,7 @@ class NotificationManager @Inject constructor(
                 }
 
                 is Resource.Error -> {
-                    showTranslationWarningNotification()
+                    showTranslationWarningNotification(result.desc!!)
                 }
             }
         }
@@ -134,7 +136,8 @@ class NotificationManager @Inject constructor(
             1,
             Intent(applicationContext, NotificationReceiver::class.java).apply {
                 putExtra(ActionExtra, Actions.TextToSpeech.name)
-                putExtra(TranslatedTextExtra, state.value.translatedText)
+                putExtra(OriginalTextExtra, state.value.originalText)
+                putExtra(SourceLanguageCodeExtra, state.value.sourceLanguageCode)
             },
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else 0
         )
@@ -152,31 +155,41 @@ class NotificationManager @Inject constructor(
            """.trimIndent()
 
         notificationManager.notify(
-            1, notificationBuilder
-                .setContentText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
-                ).addAction(
-                    R.drawable.italian, "Add Bookmarks", saveBookmarksIntent
-                ).addAction(
-                    R.drawable.italian, "Text To Speech", textToSpeechIntent
-                ).build()
+            1,
+            notificationBuilder.setContentText(
+                Html.fromHtml(
+                    notificationContent,
+                    Html.FROM_HTML_MODE_COMPACT
+                )
+            ).setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
+            ).addAction(
+                R.drawable.italian, "Add Bookmarks", saveBookmarksIntent
+            ).addAction(
+                R.drawable.italian, "Text To Speech", textToSpeechIntent
+            ).build()
         )
     }
 
     @SuppressLint("MissingPermission")
-    private fun showTranslationWarningNotification() {
+    private fun showTranslationWarningNotification(description: String) {
 
         val notificationContent = """
               <div style="display: flex; align-items: center;">
-                <b style="margin-left: 10px;">There is something wrong</b>
+                <b style="margin-left: 10px;">$description</b>
                 <br>
               </div>
            """.trimIndent()
 
         notificationManager.notify(
-            1, notificationBuilder.setStyle(
+            1,
+            notificationBuilder.setContentText(
+                Html.fromHtml(
+                    notificationContent,
+                    Html.FROM_HTML_MODE_COMPACT
+                )
+            ).setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
             ).build()
@@ -185,8 +198,8 @@ class NotificationManager @Inject constructor(
 
     fun saveTranslation() {
         val bookmark = Bookmark(
-            sourceText = state.value.originalText,
-            targetText = state.value.translatedText,
+            originalText = state.value.originalText,
+            translatedText = state.value.translatedText,
             targetLanguage = state.value.targetLanguageCode,
             sourceLanguage = state.value.sourceLanguageCode,
             time = System.currentTimeMillis(),

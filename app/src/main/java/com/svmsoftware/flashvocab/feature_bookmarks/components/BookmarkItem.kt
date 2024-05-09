@@ -47,9 +47,9 @@ fun BookmarkItem(
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 modifier = modifier.clickable {
-                    textToSpeech(item.sourceText, sourceUiLanguage.language.langCode)
+                    textToSpeech(item.originalText, sourceUiLanguage.language.langCode)
                 },
-                text = item.sourceText,
+                text = item.originalText,
                 color = Color.White,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -63,9 +63,9 @@ fun BookmarkItem(
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 modifier = modifier.clickable {
-                    textToSpeech(item.targetText, targetUiLanguage.language.langCode)
+                    textToSpeech(item.translatedText, targetUiLanguage.language.langCode)
                 },
-                text = item.targetText,
+                text = item.translatedText,
                 color = PastelBlue,
                 style = MaterialTheme.typography.bodySmall,
             )

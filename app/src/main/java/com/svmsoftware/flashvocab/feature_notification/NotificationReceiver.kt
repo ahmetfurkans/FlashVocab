@@ -6,6 +6,7 @@ import android.content.Intent
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
 import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.ActionExtra
 import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.OriginalTextExtra
 import com.svmsoftware.flashvocab.feature_notification.NotificationManager.Companion.SourceLanguageCodeExtra
@@ -24,31 +25,33 @@ class NotificationReceiver : BroadcastReceiver() {
     lateinit var bookmarkRepository: BookmarkRepository
 
     @Inject
-    lateinit var textToSpeech: TextToSpeech
+    lateinit var textToSpeechManager: TextToSpeechManager
+
+    private var firstSaveFlag = false
 
     override fun onReceive(context: Context?, intent: Intent?) {
 
         val action = intent?.getStringExtra(ActionExtra)
-        val source = intent?.getStringExtra(TranslatedTextExtra)
-        val target = intent?.getStringExtra(OriginalTextExtra)
-        val sourceLang = intent?.getStringExtra(SourceLanguageCodeExtra)
-        val targetLang = intent?.getStringExtra(TargetLanguageCodeExtra)
-
-        val bookmark = Bookmark(
-            sourceText = target!!,
-            targetText = source!!,
-            targetLanguage = targetLang!!,
-            sourceLanguage = sourceLang!!,
-            time = System.currentTimeMillis(),
-        )
+        val originalText = intent?.getStringExtra(OriginalTextExtra)
+        val translatedText = intent?.getStringExtra(TranslatedTextExtra)
+        val sourceLangCode = intent?.getStringExtra(SourceLanguageCodeExtra)
+        val targetLangCode = intent?.getStringExtra(TargetLanguageCodeExtra)
 
         when (action?.let { NotificationManager.Actions.valueOf(it) }) {
             NotificationManager.Actions.Save -> {
+                val bookmark = Bookmark(
+                    originalText = originalText!!,
+                    translatedText = translatedText!!,
+                    targetLanguage = targetLangCode!!,
+                    sourceLanguage = sourceLangCode!!,
+                    time = System.currentTimeMillis(),
+                )
                 saveTranslation(bookmark = bookmark)
+                firstSaveFlag = true
             }
 
             NotificationManager.Actions.TextToSpeech -> {
-                textToSpeech(source)
+                textToSpeech(originalText!!, sourceLangCode!!)
             }
 
             else -> {}
@@ -63,8 +66,9 @@ class NotificationReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun textToSpeech(text: String) {
-        textToSpeech.invoke(text)
+    private fun textToSpeech(text: String, languageCode: String) {
+        textToSpeechManager.shutdown()
+        textToSpeechManager.speak(text, languageCode)
     }
 
 }
