@@ -65,7 +65,12 @@ fun HomeScreen(
             SourceTextBox(modifier = Modifier.fillMaxWidth(),
                 value = state.source,
                 language = state.sourceLanguage.language.langName,
-                onSoundClick = {},
+                onSoundClick = {
+                    viewModel.textToSpeech(
+                        state.source,
+                        state.sourceLanguage.language.langCode
+                    )
+                },
                 onSearch = {
                     viewModel.processTranslate()
                 },
@@ -80,7 +85,12 @@ fun HomeScreen(
                 value = state.target,
                 language = state.targetLanguage.language.langName,
                 onSoundClick = {
+                    viewModel.textToSpeech(
+                        state.target,
+                        state.targetLanguage.language.langCode
+                    )
                 },
+                isHomeStateChanged = state.isHomeStateChanged,
                 onBookmarkClick = {
                     viewModel.saveTranslation()
                 }

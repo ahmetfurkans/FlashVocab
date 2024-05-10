@@ -13,6 +13,7 @@ import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
+import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val settingRepository: SettingRepository,
     private val bookmarkRepository: BookmarkRepository,
-    private val textToSpeech: TextToSpeech
+    private val textToSpeechManager: TextToSpeechManager
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -46,12 +47,14 @@ class HomeViewModel @Inject constructor(
     fun updateLanguages(sourceLanguage: UiLanguage?, targetLanguage: UiLanguage?) {
         sourceLanguage?.let {
             _state.value = state.value.copy(
-                sourceLanguage = it
+                sourceLanguage = it,
+                isHomeStateChanged = true
             )
         }
         targetLanguage?.let {
             _state.value = state.value.copy(
-                targetLanguage = it
+                targetLanguage = it,
+                isHomeStateChanged = true
             )
         }
         processTranslate()
@@ -63,14 +66,16 @@ class HomeViewModel @Inject constructor(
                 source = this.target,
                 target = this.source,
                 sourceLanguage = this.targetLanguage,
-                targetLanguage = this.sourceLanguage
+                targetLanguage = this.sourceLanguage,
+                isHomeStateChanged = true
             )
         }
     }
 
     fun onSourceTextValueChange(sourceText: String) {
         _state.value = state.value.copy(
-            source = sourceText
+            source = sourceText,
+            isHomeStateChanged = true
         )
         processTranslate()
     }
@@ -79,7 +84,7 @@ class HomeViewModel @Inject constructor(
         processTranslateJob?.cancel()
         if (state.value.source.isNotEmpty()) {
             processTranslateJob = viewModelScope.launch(Dispatchers.IO) {
-                delay(100)
+                delay(500)
                 val result = ProcessTranslate().invoke(
                     source = state.value.source,
                     targetLang = state.value.targetLanguage.language.langCode
@@ -88,7 +93,8 @@ class HomeViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         _state.value = state.value.copy(
-                            target = result.data?.translatedText ?: ""
+                            target = result.data?.translatedText ?: "",
+                            isHomeStateChanged = true
                         )
                     }
 
@@ -106,36 +112,50 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun textToSpeech() {
-        textToSpeech.invoke(state.value.target)
+    fun textToSpeech(text: String, languageCode: String) {
+        viewModelScope.launch {
+            textToSpeechManager.shutdown()
+            textToSpeechManager.speak(text, languageCode)
+        }
     }
 
     fun saveTranslation() {
         viewModelScope.launch {
-            val result = bookmarkRepository.insertBookmark(
-                Bookmark(
-                    originalText = state.value.source,
-                    translatedText = state.value.target,
-                    targetLanguage = state.value.targetLanguage.language.langCode,
-                    sourceLanguage = state.value.sourceLanguage.language.langCode,
-                    time = System.currentTimeMillis(),
+            if (processTranslateJob?.isActive == true) {
+                _eventFlow.emit(
+                    UiEvent.ShowSnackbar(
+                        string = "Please wait until the translation process is complete before adding a bookmark!"
+                    )
                 )
-            )
-            when (result) {
-                is Resource.Error -> {
-                    _eventFlow.emit(
-                        UiEvent.ShowSnackbar(
-                            string = result.desc ?: "Something went wrong!"
-                        )
+            } else {
+                val result = bookmarkRepository.insertBookmark(
+                    Bookmark(
+                        originalText = state.value.source,
+                        translatedText = state.value.target,
+                        targetLanguage = state.value.targetLanguage.language.langCode,
+                        sourceLanguage = state.value.sourceLanguage.language.langCode,
+                        time = System.currentTimeMillis(),
                     )
-                }
+                )
+                when (result) {
+                    is Resource.Error -> {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                string = result.desc ?: "Something went wrong!"
+                            )
+                        )
+                    }
 
-                is Resource.Success -> {
-                    _eventFlow.emit(
-                        UiEvent.ShowSnackbar(
-                            string = "Translation saved bookmarks successfully!"
+                    is Resource.Success -> {
+                        _eventFlow.emit(
+                            UiEvent.ShowSnackbar(
+                                string = "Translation saved bookmarks successfully!"
+                            )
                         )
-                    )
+                        _state.value = state.value.copy(
+                            isHomeStateChanged = false
+                        )
+                    }
                 }
             }
         }

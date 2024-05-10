@@ -27,10 +27,7 @@ class NotificationReceiver : BroadcastReceiver() {
     @Inject
     lateinit var textToSpeechManager: TextToSpeechManager
 
-    private var firstSaveFlag = false
-
     override fun onReceive(context: Context?, intent: Intent?) {
-
         val action = intent?.getStringExtra(ActionExtra)
         val originalText = intent?.getStringExtra(OriginalTextExtra)
         val translatedText = intent?.getStringExtra(TranslatedTextExtra)
@@ -47,7 +44,6 @@ class NotificationReceiver : BroadcastReceiver() {
                     time = System.currentTimeMillis(),
                 )
                 saveTranslation(bookmark = bookmark)
-                firstSaveFlag = true
             }
 
             NotificationManager.Actions.TextToSpeech -> {

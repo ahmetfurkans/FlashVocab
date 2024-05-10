@@ -6,39 +6,25 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import android.text.Html
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
-import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
-import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
-import com.svmsoftware.flashvocab.core.presentation.MainActivity
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.random.Random
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
@@ -196,7 +182,7 @@ class NotificationManager @Inject constructor(
         )
     }
 
-    fun saveTranslation() {
+    private fun saveTranslation() {
         val bookmark = Bookmark(
             originalText = state.value.originalText,
             translatedText = state.value.translatedText,

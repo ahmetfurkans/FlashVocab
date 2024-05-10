@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.sharp.Bookmark
+import androidx.compose.material.icons.sharp.BookmarkBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -34,8 +35,10 @@ fun TargetTextBox(
     value: String = "",
     language: String = "",
     onSoundClick: () -> Unit,
-    onBookmarkClick: () -> Unit
+    onBookmarkClick: () -> Unit,
+    isHomeStateChanged: Boolean = true
 ) {
+    println(isHomeStateChanged)
     Card(
         modifier = modifier, colors = CardDefaults.cardColors(VividBlue)
     ) {
@@ -64,16 +67,18 @@ fun TargetTextBox(
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Icon(
-                    modifier = Modifier
-                        .clickable { onBookmarkClick() },
-                    imageVector = Icons.Sharp.Bookmark,
+                    modifier = Modifier.clickable {
+                        if (isHomeStateChanged) {
+                            onBookmarkClick()
+                        }
+                    },
+                    imageVector = if (isHomeStateChanged) Icons.Sharp.BookmarkBorder else Icons.Sharp.Bookmark,
                     contentDescription = null,
                     tint = Color.White
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Icon(
-                    modifier = Modifier
-                        .clickable { onSoundClick() },
+                    modifier = Modifier.clickable { onSoundClick() },
                     imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = null,
                     tint = Color.White
