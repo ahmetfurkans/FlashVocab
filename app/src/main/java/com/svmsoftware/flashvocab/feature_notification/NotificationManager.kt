@@ -2,9 +2,14 @@ package com.svmsoftware.flashvocab.feature_notification
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.RECEIVER_EXPORTED
+import android.content.Context.RECEIVER_NOT_EXPORTED
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.text.Html
 import androidx.core.app.NotificationCompat
@@ -15,6 +20,7 @@ import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
+import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_ID
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -24,31 +30,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val textToSpeechManager: TextToSpeechManager,
-    private val notificationBuilder: NotificationCompat.Builder,
-    private val notificationManager: NotificationManagerCompat,
     @ApplicationContext private val applicationContext: Context,
 ) {
 
-    companion object {
-        const val ActionExtra = "action"
-        const val OriginalTextExtra = "originalText"
-        const val TranslatedTextExtra = "translatedText"
-        const val SourceLanguageCodeExtra = "sourceLanguageCode"
-        const val TargetLanguageCodeExtra = "targetLanguageCode"
-    }
-
-    enum class Actions {
-        Save, Discard, TextToSpeech
-    }
-
     private val _state = MutableStateFlow(NotificationState())
     val state: StateFlow<NotificationState> = _state
+
+    private val notificationManager = NotificationManagerCompat.from(applicationContext)
+
+    private val builder = NotificationCompat.Builder(
+        applicationContext,
+        CHANNEL_ID,
+    )
+
 
     fun performTranslationNotification(word: String?) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -100,35 +99,6 @@ class NotificationManager @Inject constructor(
 
     @SuppressLint("MissingPermission")
     private fun showTranslationSuccessNotification() {
-        val saveBookmarksIntent = PendingIntent.getBroadcast(
-            applicationContext,
-            2,
-            Intent(applicationContext, NotificationReceiver::class.java).apply {
-
-                putExtra(ActionExtra, Actions.Save.name)
-                putExtra(OriginalTextExtra, state.value.originalText)
-                putExtra(TranslatedTextExtra, state.value.translatedText)
-                putExtra(SourceLanguageCodeExtra, state.value.sourceLanguageCode)
-                putExtra(TargetLanguageCodeExtra, state.value.targetLanguageCode)
-                _state.value = state.value.copy(
-                    isAlreadySaved = true
-                )
-            },
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else 0,
-        )
-
-        val textToSpeechIntent = PendingIntent.getBroadcast(
-            applicationContext,
-            1,
-            Intent(applicationContext, NotificationReceiver::class.java).apply {
-                putExtra(ActionExtra, Actions.TextToSpeech.name)
-                putExtra(OriginalTextExtra, state.value.originalText)
-                putExtra(SourceLanguageCodeExtra, state.value.sourceLanguageCode)
-            },
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT else 0
-        )
-
-
         val textToTranslate = state.value.originalText
         val translatedText = state.value.translatedText
 
@@ -140,21 +110,18 @@ class NotificationManager @Inject constructor(
               </div>
            """.trimIndent()
 
+        addListenButton(applicationContext)
+        addFavouriteButton(applicationContext)
+
         notificationManager.notify(
-            1,
-            notificationBuilder.setContentText(
-                Html.fromHtml(
-                    notificationContent,
-                    Html.FROM_HTML_MODE_COMPACT
-                )
-            ).setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
-            ).addAction(
-                R.drawable.italian, "Add Bookmarks", saveBookmarksIntent
-            ).addAction(
-                R.drawable.italian, "Text To Speech", textToSpeechIntent
-            ).build()
+            1, builder.setSmallIcon(R.mipmap.ic_launcher).setContentText(
+                    Html.fromHtml(
+                        notificationContent, Html.FROM_HTML_MODE_COMPACT
+                    )
+                ).setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
+                ).build()
         )
     }
 
@@ -169,17 +136,75 @@ class NotificationManager @Inject constructor(
            """.trimIndent()
 
         notificationManager.notify(
-            1,
-            notificationBuilder.setContentText(
+            1, builder.setContentText(
                 Html.fromHtml(
-                    notificationContent,
-                    Html.FROM_HTML_MODE_COMPACT
+                    notificationContent, Html.FROM_HTML_MODE_COMPACT
                 )
             ).setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
             ).build()
         )
+    }
+
+    private fun addFavouriteButton(
+        context: Context
+    ) {
+        val notificationFavourite: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                saveTranslation()
+                context.unregisterReceiver(this)
+            }
+        }
+
+        val intentFilter = IntentFilter("com.svmsoftware.flashvocab.ACTION_FAVOURITE")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.registerReceiver(
+                notificationFavourite, intentFilter, RECEIVER_EXPORTED
+            )
+        } else {
+            context.registerReceiver(
+                notificationFavourite, intentFilter
+            )
+        }
+
+        val star = Intent("com.svmsoftware.flashvocab.ACTION_FAVOURITE")
+        val nStar = PendingIntent.getBroadcast(
+            context, 0, star, FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+        )
+
+        builder.addAction(NotificationCompat.Action(null, "Add Bookmark", nStar))
+    }
+
+    private fun addListenButton(
+        context: Context
+    ) {
+        val notificationFavourite: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent?) {
+                textToSpeechManager.shutdown()
+                textToSpeechManager.speak(
+                    state.value.originalText, state.value.sourceLanguageCode
+                )
+                context.unregisterReceiver(this)
+            }
+        }
+
+        val intentFilter = IntentFilter("com.svmsoftware.flashvocab.ACTION_TTS")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.registerReceiver(
+                notificationFavourite, intentFilter, RECEIVER_EXPORTED
+            )
+        } else {
+            context.registerReceiver(
+                notificationFavourite, intentFilter
+            )
+        }
+        val star = Intent("com.svmsoftware.flashvocab.ACTION_TTS")
+        val nStar = PendingIntent.getBroadcast(
+            context, 0, star, FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+        )
+
+        builder.addAction(NotificationCompat.Action(null, "Listen", nStar))
     }
 
     private fun saveTranslation() {

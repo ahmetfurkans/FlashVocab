@@ -1,12 +1,19 @@
 package com.svmsoftware.flashvocab.feature_setting.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +34,7 @@ fun LanguageSetting(
     modifier: Modifier = Modifier,
     isOpen: Boolean = false,
     onClick: () -> Unit,
-    onDismiss: () -> Unit,
     uiLanguage: UiLanguage,
-    onSelectLanguage: (UiLanguage) -> Unit
 ) {
     Column(
         modifier = modifier.fillMaxWidth()
@@ -46,11 +51,28 @@ fun LanguageSetting(
                 style = MaterialTheme.typography.displayMedium,
                 color = Color.White
             )
-            LanguageDropDown(language = uiLanguage,
-                isOpen = isOpen,
-                onClick = { onClick() },
-                onDismiss = { onDismiss() },
-                onSelectLanguage = { onSelectLanguage(it); onDismiss() })
+            Row(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clickable(onClick = onClick),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = uiLanguage.language.langName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+                Icon(
+                    imageVector = if (isOpen) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                    contentDescription = if (isOpen) {
+                        "open"
+                    } else {
+                        "close"
+                    },
+                    tint = Color.White,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(4.dp))
         Spacer(

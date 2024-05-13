@@ -44,17 +44,17 @@ class HomeViewModel @Inject constructor(
         getTargetLanguage()
     }
 
-    fun updateLanguages(sourceLanguage: UiLanguage?, targetLanguage: UiLanguage?) {
-        sourceLanguage?.let {
+    fun updateLanguages(uiLanguage: UiLanguage) {
+        if (state.value.isSourceActive) {
             _state.value = state.value.copy(
-                sourceLanguage = it,
-                isHomeStateChanged = true
+                sourceLanguage = uiLanguage, isHomeStateChanged = true,
+                isSourceActive = false
             )
         }
-        targetLanguage?.let {
+        if (state.value.isTargetActive) {
             _state.value = state.value.copy(
-                targetLanguage = it,
-                isHomeStateChanged = true
+                targetLanguage = uiLanguage, isHomeStateChanged = true,
+                isTargetActive = false
             )
         }
         processTranslate()
@@ -74,8 +74,7 @@ class HomeViewModel @Inject constructor(
 
     fun onSourceTextValueChange(sourceText: String) {
         _state.value = state.value.copy(
-            source = sourceText,
-            isHomeStateChanged = true
+            source = sourceText, isHomeStateChanged = true
         )
         processTranslate()
     }
@@ -93,8 +92,7 @@ class HomeViewModel @Inject constructor(
                 when (result) {
                     is Resource.Success -> {
                         _state.value = state.value.copy(
-                            target = result.data?.translatedText ?: "",
-                            isHomeStateChanged = true
+                            target = result.data?.translatedText ?: "", isHomeStateChanged = true
                         )
                     }
 
@@ -164,6 +162,12 @@ class HomeViewModel @Inject constructor(
     fun cleanSourceText() {
         _state.value = state.value.copy(
             target = "", source = ""
+        )
+    }
+
+    fun triggerLanguageSelector(isSourceActive: Boolean, isTargetActive: Boolean) {
+        _state.value = state.value.copy(
+            isSourceActive = isSourceActive, isTargetActive = isTargetActive
         )
     }
 

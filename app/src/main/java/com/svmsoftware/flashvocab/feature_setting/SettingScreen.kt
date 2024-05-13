@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
+import com.svmsoftware.flashvocab.core.presentation.component.LanguageSelectorBottomSheet
 import com.svmsoftware.flashvocab.feature_setting.components.CardButton
 import com.svmsoftware.flashvocab.feature_setting.components.LanguageSetting
 import com.svmsoftware.flashvocab.feature_setting.components.StatusSetting
@@ -34,11 +35,11 @@ fun SettingsScreen(
     val settings = viewModel.state.value.settings
     val isLanguageSelectorVisible = viewModel.state.value.isLanguageSelectorVisible
     val context = LocalContext.current
-    val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission(),
-            onResult = { isGranted ->
-                viewModel.updateSettings(settings.copy(isNotificationEnabled = isGranted))
-            })
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            viewModel.updateSettings(settings.copy(isNotificationEnabled = isGranted))
+        })
 
     Column(
         modifier
@@ -49,9 +50,7 @@ fun SettingsScreen(
             item {
                 LanguageSetting(uiLanguage = UiLanguage.byCode(settings.translatedLangCode),
                     isOpen = isLanguageSelectorVisible,
-                    onSelectLanguage = { viewModel.updateSettings(settings.copy(translatedLangCode = it.language.langCode)) },
-                    onClick = { viewModel.toggleLanguageSelector(true) },
-                    onDismiss = { viewModel.toggleLanguageSelector(false) })
+                    onClick = { viewModel.toggleLanguageSelector(true) })
             }
             item {
                 SwitchableSetting(title = "Notification",
@@ -67,18 +66,19 @@ fun SettingsScreen(
                     })
             }
             item {
-                StatusSetting(title = "Plan", status = "Free") {
-                }
+                StatusSetting(title = "Plan", status = "Free") {}
             }
             item {
-                SwitchableSetting(title = "Auto Read",
+                SwitchableSetting(
+                    title = "Auto Read",
                     status = settings.isAutoReadEnabled,
                     onCheckedChange = {
                         viewModel.updateSettings(settings.copy(isAutoReadEnabled = it))
                     })
             }
             item {
-                SwitchableSetting(title = "Auto Save",
+                SwitchableSetting(
+                    title = "Auto Save",
                     status = settings.isAutoSaveEnabled,
                     onCheckedChange = {
                         viewModel.updateSettings(settings.copy(isAutoSaveEnabled = it))
@@ -98,6 +98,11 @@ fun SettingsScreen(
                 }
             }
         }
+        LanguageSelectorBottomSheet(viewModel.state.value.isLanguageSelectorVisible,
+            onItemSelected = {
+                viewModel.updateSettings(settings.copy(translatedLangCode = it.language.langCode))
+                viewModel.toggleLanguageSelector(false)
+            },
+            onDismissBottomSheet = { viewModel.toggleLanguageSelector(false) })
     }
-
 }

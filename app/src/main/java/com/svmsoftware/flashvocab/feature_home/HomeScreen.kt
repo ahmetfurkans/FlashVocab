@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.core.domain.model.UiEvent
+import com.svmsoftware.flashvocab.core.presentation.component.LanguageSelectorBottomSheet
 import com.svmsoftware.flashvocab.feature_home.components.LanguageSelector
 import com.svmsoftware.flashvocab.feature_home.components.SourceTextBox
 import com.svmsoftware.flashvocab.feature_home.components.TargetTextBox
@@ -67,8 +68,7 @@ fun HomeScreen(
                 language = state.sourceLanguage.language.langName,
                 onSoundClick = {
                     viewModel.textToSpeech(
-                        state.source,
-                        state.sourceLanguage.language.langCode
+                        state.source, state.sourceLanguage.language.langCode
                     )
                 },
                 onSearch = {
@@ -77,30 +77,44 @@ fun HomeScreen(
                 onValueChange = { s -> viewModel.onSourceTextValueChange(s) },
                 onCleanClick = {
                     viewModel.cleanSourceText()
-                }
-            )
+                })
             Spacer(modifier = Modifier.height(16.dp))
-            TargetTextBox(
-                modifier = Modifier.fillMaxWidth(),
+            TargetTextBox(modifier = Modifier.fillMaxWidth(),
                 value = state.target,
                 language = state.targetLanguage.language.langName,
                 onSoundClick = {
                     viewModel.textToSpeech(
-                        state.target,
-                        state.targetLanguage.language.langCode
+                        state.target, state.targetLanguage.language.langCode
                     )
                 },
                 isHomeStateChanged = state.isHomeStateChanged,
                 onBookmarkClick = {
                     viewModel.saveTranslation()
-                }
-            )
+                })
             Spacer(modifier = Modifier.height(24.dp))
-            LanguageSelector(modifier = Modifier.fillMaxWidth(),
+            LanguageSelector(
+                modifier = Modifier.fillMaxWidth(),
                 sourceLanguage = state.sourceLanguage,
                 targetLanguage = state.targetLanguage,
-                updateLanguages = { x, y -> viewModel.updateLanguages(x, y) },
-                switchLanguages = { viewModel.switchLanguages() })
+                sourceLanguageIsOpen = state.isSourceActive,
+                targetLanguageIsOpen = state.isTargetActive,
+                triggerSourceLanguage = { isSourceActive ->
+                    viewModel.triggerLanguageSelector(
+                        isSourceActive, false
+                    )
+                },
+                triggerTargetLanguage = { isTargetActive ->
+                    viewModel.triggerLanguageSelector(
+                        false, isTargetActive
+                    )
+                },
+                switchLanguages = { viewModel.switchLanguages() },
+            )
         }
+        LanguageSelectorBottomSheet(state.isTargetActive or state.isSourceActive, onItemSelected = {
+            viewModel.updateLanguages(it)
+        }, onDismissBottomSheet = {
+            viewModel.triggerLanguageSelector(false, false)
+        })
     }
 }

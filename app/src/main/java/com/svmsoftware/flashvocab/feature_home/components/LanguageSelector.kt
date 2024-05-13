@@ -7,12 +7,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +39,12 @@ fun LanguageSelector(
     modifier: Modifier = Modifier,
     sourceLanguage: UiLanguage,
     targetLanguage: UiLanguage,
-    updateLanguages: (UiLanguage?, UiLanguage?) -> Unit,
     switchLanguages: () -> Unit,
+    triggerSourceLanguage: (Boolean) -> Unit,
+    triggerTargetLanguage: (Boolean) -> Unit,
+    sourceLanguageIsOpen: Boolean = false,
+    targetLanguageIsOpen: Boolean = false,
 ) {
-
-    var sourceLanguageIsOpen by remember {
-        mutableStateOf(false)
-    }
-
-    var targetLanguageIsOpen by remember {
-        mutableStateOf(false)
-    }
-
     Box(
         contentAlignment = Alignment.Center,
     ) {
@@ -52,29 +52,22 @@ fun LanguageSelector(
             modifier = modifier.clip(RoundedCornerShape(30.dp)),
             colors = CardDefaults.cardColors(MidnightBlue),
         ) {
-
             Row(
                 modifier = Modifier
                     .padding(vertical = 16.dp, horizontal = 32.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                LanguageDropDown(language = sourceLanguage,
+                LanguageDropDown(
+                    language = sourceLanguage,
                     isOpen = sourceLanguageIsOpen,
-                    onClick = {
-                        sourceLanguageIsOpen = true
-                        targetLanguageIsOpen = false
-                    },
-                    onDismiss = { sourceLanguageIsOpen = false },
-                    onSelectLanguage = { updateLanguages(it, null); sourceLanguageIsOpen = false })
-                LanguageDropDown(language = targetLanguage,
+                    onClick = { triggerSourceLanguage(true) },
+                )
+                LanguageDropDown(
+                    language = targetLanguage,
                     isOpen = targetLanguageIsOpen,
-                    onClick = {
-                        targetLanguageIsOpen = true
-                        sourceLanguageIsOpen = false
-                    },
-                    onDismiss = { targetLanguageIsOpen = false },
-                    onSelectLanguage = { updateLanguages(null, it); targetLanguageIsOpen = false })
+                    onClick = { triggerTargetLanguage(true) },
+                )
             }
         }
         Box(modifier = Modifier

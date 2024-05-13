@@ -20,7 +20,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NotificationModule {
 
-    @Singleton
     @Provides
     fun provideNotificationBuilder(
         @ApplicationContext context: Context
@@ -29,7 +28,6 @@ object NotificationModule {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
     }
 
-    @Singleton
     @Provides
     fun provideNotificationManager(
         @ApplicationContext context: Context

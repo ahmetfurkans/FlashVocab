@@ -7,5 +7,8 @@ data class HomeState(
     val target: String = "",
     val sourceLanguage: UiLanguage = UiLanguage.byCode("en"),
     val targetLanguage: UiLanguage = UiLanguage.byCode("tr"),
-    val isHomeStateChanged: Boolean = true
-)
+    val isHomeStateChanged: Boolean = true,
+    val showBottomSheet: Boolean = true,
+    val isTargetActive: Boolean = false,
+    val isSourceActive: Boolean = false,
+    )

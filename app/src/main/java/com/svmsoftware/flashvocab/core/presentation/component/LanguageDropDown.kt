@@ -28,26 +28,9 @@ fun LanguageDropDown(
     language: UiLanguage,
     isOpen: Boolean,
     onClick: () -> Unit,
-    onDismiss: () -> Unit,
-    onSelectLanguage: (UiLanguage) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
-        DropdownMenu(
-            expanded = isOpen, onDismissRequest = onDismiss, modifier = Modifier.background(
-                MidnightBlue
-            )
-        ) {
-            UiLanguage.allLanguages.forEach { language ->
-                LanguageDropDownItem(
-                    language = language,
-                    onClick = {
-                        onSelectLanguage(language)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
         Row(
             modifier = Modifier
                 .wrapContentSize()
