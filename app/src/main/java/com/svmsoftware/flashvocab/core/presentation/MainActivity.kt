@@ -3,6 +3,7 @@ package com.svmsoftware.flashvocab.core.presentation
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,7 +18,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.svmsoftware.flashvocab.core.presentation.navigation.BottomNavigationBar
 import com.svmsoftware.flashvocab.core.presentation.navigation.SetupNavGraph
@@ -25,6 +25,7 @@ import com.svmsoftware.flashvocab.core.presentation.theme.FlashVocabTheme
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_ID
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_NAME
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity(
@@ -77,14 +78,5 @@ class MainActivity : ComponentActivity(
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-            println("not exit app")
-    }
-
-    override fun onStart() {
-        super.onStart()
-        println("if not exit work, not exit else exit")
-    }
 }
 

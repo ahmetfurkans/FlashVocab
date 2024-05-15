@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.svmsoftware.flashvocab.feature_bookmarks.components.BookmarkItem
+import com.svmsoftware.flashvocab.feature_bookmarks.components.EmptyNoteScreen
 import com.svmsoftware.flashvocab.feature_bookmarks.components.SearchTextField
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
@@ -55,8 +56,7 @@ fun BookmarksScreen(
                 })
             }
             .fillMaxSize()
-            .padding(vertical = 36.dp, horizontal = 16.dp)
-    ) {
+            .padding(vertical = 36.dp, horizontal = 16.dp)) {
         SearchTextField(modifier = modifier.height(48.dp),
             text = viewModel.state.value.query,
             onValueChange = { viewModel.onSearchValueChange(it) },
@@ -64,42 +64,48 @@ fun BookmarksScreen(
             onSearch = { /*TODO*/ },
             onFocusChanged = {})
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn() {
-            items(viewModel.state.value.bookmarks) {
-                val delete = SwipeAction(onSwipe = {
-                    viewModel.deleteBookmarkItem(it)
-                    scope.launch {
-                        val result = snackbarHostState.showSnackbar(
-                            message = "Translation deleted",
-                            actionLabel = "Undo",
-                            duration = SnackbarDuration.Short
-                        )
-                        if (result == SnackbarResult.ActionPerformed) {
-                            viewModel.restoreBookmark()
+
+        if (viewModel.state.value.bookmarks.isEmpty()) {
+            EmptyNoteScreen(modifier = Modifier.fillMaxWidth())
+        } else {
+            LazyColumn() {
+                items(viewModel.state.value.bookmarks) {
+                    val delete = SwipeAction(onSwipe = {
+                        viewModel.deleteBookmarkItem(it)
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "Translation deleted",
+                                actionLabel = "Undo",
+                                duration = SnackbarDuration.Short
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.restoreBookmark()
+                            }
                         }
+                    }, icon = {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete chat",
+                            modifier = Modifier.padding(16.dp),
+                            tint = Color.White
+                        )
+                    }, background = Color.Red.copy(alpha = 0.5f), isUndo = true
+                    )
+                    SwipeableActionsBox(
+                        modifier = Modifier, swipeThreshold = 200.dp, endActions = listOf(delete)
+                    ) {
+                        BookmarkItem(
+                            item = it, textToSpeech = { text, langCode ->
+                                viewModel.textToSpeech(
+                                    text, langCode
+                                )
+                            }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
                     }
-                }, icon = {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete chat",
-                        modifier = Modifier.padding(16.dp),
-                        tint = Color.White
-                    )
-                }, background = Color.Red.copy(alpha = 0.5f), isUndo = true
-                )
-                SwipeableActionsBox(
-                    modifier = Modifier, swipeThreshold = 200.dp, endActions = listOf(delete)
-                ) {
-                    BookmarkItem(
-                        item = it,
-                        textToSpeech = { text, langCode -> viewModel.textToSpeech(text, langCode) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    )
                 }
             }
         }
     }
-
 }

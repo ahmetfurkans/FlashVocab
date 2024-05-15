@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
@@ -47,6 +48,9 @@ class NotificationManager @Inject constructor(
         applicationContext,
         CHANNEL_ID,
     )
+
+    private var notificationFavourite: BroadcastReceiver? = null
+    private var notificationListen: BroadcastReceiver? = null
 
 
     fun performTranslationNotification(word: String?) {
@@ -115,13 +119,13 @@ class NotificationManager @Inject constructor(
 
         notificationManager.notify(
             1, builder.setSmallIcon(R.mipmap.ic_launcher).setContentText(
-                    Html.fromHtml(
-                        notificationContent, Html.FROM_HTML_MODE_COMPACT
-                    )
-                ).setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
-                ).build()
+                Html.fromHtml(
+                    notificationContent, Html.FROM_HTML_MODE_COMPACT
+                )
+            ).setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(Html.fromHtml(notificationContent, Html.FROM_HTML_MODE_COMPACT))
+            ).build()
         )
     }
 
@@ -136,7 +140,7 @@ class NotificationManager @Inject constructor(
            """.trimIndent()
 
         notificationManager.notify(
-            1, builder.setContentText(
+            Random.nextInt(1000), builder.setContentText(
                 Html.fromHtml(
                     notificationContent, Html.FROM_HTML_MODE_COMPACT
                 )
@@ -150,7 +154,7 @@ class NotificationManager @Inject constructor(
     private fun addFavouriteButton(
         context: Context
     ) {
-        val notificationFavourite: BroadcastReceiver = object : BroadcastReceiver() {
+        notificationFavourite = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent?) {
                 saveTranslation()
                 context.unregisterReceiver(this)
@@ -179,7 +183,7 @@ class NotificationManager @Inject constructor(
     private fun addListenButton(
         context: Context
     ) {
-        val notificationFavourite: BroadcastReceiver = object : BroadcastReceiver() {
+        notificationListen = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent?) {
                 textToSpeechManager.shutdown()
                 textToSpeechManager.speak(
@@ -192,11 +196,11 @@ class NotificationManager @Inject constructor(
         val intentFilter = IntentFilter("com.svmsoftware.flashvocab.ACTION_TTS")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.registerReceiver(
-                notificationFavourite, intentFilter, RECEIVER_EXPORTED
+                notificationListen, intentFilter, RECEIVER_EXPORTED
             )
         } else {
             context.registerReceiver(
-                notificationFavourite, intentFilter
+                notificationListen, intentFilter
             )
         }
         val star = Intent("com.svmsoftware.flashvocab.ACTION_TTS")
