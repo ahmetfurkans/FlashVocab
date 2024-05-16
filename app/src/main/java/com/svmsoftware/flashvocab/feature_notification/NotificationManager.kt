@@ -16,7 +16,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
+import com.svmsoftware.flashvocab.core.domain.model.DailyReset
+import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
+import com.svmsoftware.flashvocab.core.domain.repository.DailyResetRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
@@ -27,14 +30,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.random.Random
 
 class NotificationManager @Inject constructor(
     private val settingRepository: SettingRepository,
     private val bookmarkRepository: BookmarkRepository,
+    private val dailyResetRepository: DailyResetRepository,
     private val textToSpeechManager: TextToSpeechManager,
     @ApplicationContext private val applicationContext: Context,
 ) {
@@ -51,6 +58,10 @@ class NotificationManager @Inject constructor(
 
     private var notificationFavourite: BroadcastReceiver? = null
     private var notificationListen: BroadcastReceiver? = null
+
+    init {
+        getDailyResetNotificationCount()
+    }
 
 
     fun performTranslationNotification(word: String?) {
@@ -78,23 +89,28 @@ class NotificationManager @Inject constructor(
     }
 
     private fun processTranslate(word: String?) {
-        if (!word.isNullOrEmpty()) {
-            val result = ProcessTranslate().invoke(
-                source = word, targetLang = state.value.userSettings?.translatedLangCode!!
-            )
-            when (result) {
-                is Resource.Success -> {
-                    _state.value = _state.value.copy(
-                        originalText = word,
-                        translatedText = result.data?.translatedText!!,
-                        sourceLanguageCode = result.data.sourceLanguage,
-                        targetLanguageCode = state.value.userSettings?.translatedLangCode!!
-                    )
-                    showTranslationSuccessNotification()
-                }
+        if (state.value.dailyReset.dailyNotificationCount >= 10) {
+            showTranslationWarningNotification("Your daily notification limit has been reached for today.")
+        } else {
+            if (!word.isNullOrEmpty()) {
+                val result = ProcessTranslate().invoke(
+                    source = word, targetLang = state.value.userSettings?.translatedLangCode!!
+                )
+                when (result) {
+                    is Resource.Success -> {
+                        _state.value = _state.value.copy(
+                            originalText = word,
+                            translatedText = result.data?.translatedText!!,
+                            sourceLanguageCode = result.data.sourceLanguage,
+                            targetLanguageCode = state.value.userSettings?.translatedLangCode!!
+                        )
+                        insertDailyResetNotification(null)
+                        showTranslationSuccessNotification()
+                    }
 
-                is Resource.Error -> {
-                    showTranslationWarningNotification(result.desc!!)
+                    is Resource.Error -> {
+                        showTranslationWarningNotification(result.desc!!)
+                    }
                 }
             }
         }
@@ -140,7 +156,7 @@ class NotificationManager @Inject constructor(
            """.trimIndent()
 
         notificationManager.notify(
-            Random.nextInt(1000), builder.setContentText(
+            Random.nextInt(1000), builder.setSmallIcon(R.mipmap.ic_launcher).setContentText(
                 Html.fromHtml(
                     notificationContent, Html.FROM_HTML_MODE_COMPACT
                 )
@@ -224,6 +240,29 @@ class NotificationManager @Inject constructor(
             bookmarkRepository.insertBookmark(
                 bookmark
             )
+        }
+    }
+
+    private fun getDailyResetNotificationCount() {
+        CoroutineScope(Dispatchers.IO).launch {
+            dailyResetRepository.getDailyReset().collect {
+                if (it == null) {
+                    insertDailyResetNotification(DailyReset())
+                } else {
+                    _state.value = _state.value.copy(
+                        dailyReset = it
+                    )
+                }
+            }
+        }
+    }
+
+    private fun insertDailyResetNotification(dailyResetArg: DailyReset?) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val dailyReset = state.value.dailyReset.copy(
+                dailyNotificationCount = state.value.dailyReset.dailyNotificationCount + 1
+            )
+            dailyResetRepository.insertDailyReset(dailyReset = dailyResetArg ?: dailyReset)
         }
     }
 }

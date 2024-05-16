@@ -15,5 +15,4 @@ class SettingRepositoryImpl(
     override suspend fun insertSetting(settings: UserSettings) {
         dao.updateSettings(setting = settings)
     }
-
 }

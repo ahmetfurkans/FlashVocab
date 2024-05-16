@@ -27,11 +27,12 @@ class BookmarkRepositoryImpl(
             } else if (bookmark.translatedText.isBlank()) {
                 Resource.Error(desc = "Please complete the translation before adding a bookmark.")
             } else {
+                UiLanguage.byCode(bookmark.sourceLanguage)
                 dao.insertBookmark(bookmark)
                 Resource.Success(data = null)
             }
         } catch (e: IllegalArgumentException) {
-            Resource.Error("Unsupported Language")
+            Resource.Error(e.message ?: "Illegal Argument Exception")
         }
     }
 

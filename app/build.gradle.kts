@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
@@ -70,6 +72,10 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation("me.saket.swipe:swipe:1.3.0")
 
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-analytics")
 
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
@@ -89,6 +95,10 @@ dependencies {
     // Debug
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 
+    // Worker
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.hilt:hilt-work:1.0.0")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

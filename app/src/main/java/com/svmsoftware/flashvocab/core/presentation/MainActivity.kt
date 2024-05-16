@@ -25,6 +25,7 @@ import com.svmsoftware.flashvocab.core.presentation.theme.FlashVocabTheme
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_ID
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_NAME
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.RuntimeException
 
 
 @AndroidEntryPoint
