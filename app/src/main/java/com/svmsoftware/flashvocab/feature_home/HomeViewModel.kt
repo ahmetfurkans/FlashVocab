@@ -2,7 +2,6 @@ package com.svmsoftware.flashvocab.feature_home
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
@@ -12,7 +11,6 @@ import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
 import com.svmsoftware.flashvocab.core.domain.use_cases.ProcessTranslate
-import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeech
 import com.svmsoftware.flashvocab.core.domain.use_cases.TextToSpeechManager
 import com.svmsoftware.flashvocab.core.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel

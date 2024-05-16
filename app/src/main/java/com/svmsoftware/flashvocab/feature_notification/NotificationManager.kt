@@ -7,7 +7,6 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.RECEIVER_EXPORTED
-import android.content.Context.RECEIVER_NOT_EXPORTED
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
@@ -17,7 +16,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.svmsoftware.flashvocab.R
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.model.DailyReset
-import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
 import com.svmsoftware.flashvocab.core.domain.repository.DailyResetRepository
 import com.svmsoftware.flashvocab.core.domain.repository.SettingRepository
@@ -30,11 +28,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 import kotlin.random.Random
 

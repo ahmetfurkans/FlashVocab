@@ -1,7 +1,7 @@
 package com.svmsoftware.flashvocab.core.domain.repository
 
-import com.svmsoftware.flashvocab.core.util.Resource
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
+import com.svmsoftware.flashvocab.core.util.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface BookmarkRepository {

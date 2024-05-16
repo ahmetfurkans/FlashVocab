@@ -1,12 +1,11 @@
 package com.svmsoftware.flashvocab.core.data.repository
 
-import com.svmsoftware.flashvocab.core.util.Resource
 import com.svmsoftware.flashvocab.core.data.local.BookmarkDao
 import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
 import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
+import com.svmsoftware.flashvocab.core.util.Resource
 import kotlinx.coroutines.flow.Flow
-import java.lang.IllegalArgumentException
 
 class BookmarkRepositoryImpl(
     private val dao: BookmarkDao

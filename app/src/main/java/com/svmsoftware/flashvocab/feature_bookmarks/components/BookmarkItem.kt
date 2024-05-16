@@ -18,10 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 import com.svmsoftware.flashvocab.core.domain.model.UiLanguage
 import com.svmsoftware.flashvocab.core.presentation.theme.MidnightBlue
 import com.svmsoftware.flashvocab.core.presentation.theme.PastelBlue
-import com.svmsoftware.flashvocab.core.domain.model.Bookmark
 
 @Composable
 fun BookmarkItem(

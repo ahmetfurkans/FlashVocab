@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.svmsoftware.flashvocab.core.domain.model.DailyReset
-import com.svmsoftware.flashvocab.core.domain.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 
 @Dao

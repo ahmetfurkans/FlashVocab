@@ -2,9 +2,6 @@ package com.svmsoftware.flashvocab.core.domain.use_cases
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import com.svmsoftware.flashvocab.core.domain.repository.BookmarkRepository
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
 import javax.inject.Inject
 

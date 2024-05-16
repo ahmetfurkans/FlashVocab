@@ -3,7 +3,6 @@ package com.svmsoftware.flashvocab.core.presentation
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -25,7 +24,6 @@ import com.svmsoftware.flashvocab.core.presentation.theme.FlashVocabTheme
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_ID
 import com.svmsoftware.flashvocab.core.util.Constants.CHANNEL_NAME
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.RuntimeException
 
 
 @AndroidEntryPoint

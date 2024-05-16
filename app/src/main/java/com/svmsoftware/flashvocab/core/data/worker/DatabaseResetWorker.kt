@@ -7,14 +7,10 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.svmsoftware.flashvocab.core.data.local.DailyResetDatabase
 import com.svmsoftware.flashvocab.core.domain.repository.DailyResetRepository
-import com.svmsoftware.flashvocab.feature_notification.NotificationManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @HiltWorker
 class DatabaseResetWorker @AssistedInject constructor(

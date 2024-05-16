@@ -2,9 +2,7 @@ package com.svmsoftware.flashvocab.core.data.repository
 
 import android.content.Context
 import androidx.room.Room
-import com.svmsoftware.flashvocab.core.data.local.DailyResetDao
 import com.svmsoftware.flashvocab.core.data.local.DailyResetDatabase
-import com.svmsoftware.flashvocab.core.data.local.SettingDao
 import com.svmsoftware.flashvocab.core.domain.model.DailyReset
 import com.svmsoftware.flashvocab.core.domain.repository.DailyResetRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
